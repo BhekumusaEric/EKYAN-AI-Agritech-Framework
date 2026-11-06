@@ -103,3 +103,4 @@ if __name__ == "__main__":
 
     advisory = engine.generate_advisory(obs)
     print(json.dumps(advisory, indent=2))
+

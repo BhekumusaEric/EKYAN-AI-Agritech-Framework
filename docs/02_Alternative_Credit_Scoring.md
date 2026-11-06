@@ -73,3 +73,4 @@ graph LR
 ## 4. Integration with Microfinance Institutions & UNICEF Seed Grants
 
 The generated score is exposed via a secure REST API to local partner microfinance institutions (e.g., Faulu Kenya, Kenya Women Microfinance Bank - KWFT, Equity Group Foundation) or used to prioritize UNICEF revolving seed grant disbursements.
+

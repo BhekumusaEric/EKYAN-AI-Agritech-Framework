@@ -33,3 +33,4 @@ Provide UNICEF Kenya, Generation Unlimited (GenU), county governments, and inter
 * **Backend:** FastAPI (Python 3.11), Celery workers for scheduled ETL aggregation.
 * **Database:** PostgreSQL 16 with **PostGIS** extension for spatial queries (bounding boxes, proximity searches, radius queries).
 * **Data Privacy:** Full compliance with the Kenya Data Protection Act (2019) and UNICEF Child Safeguarding standards. All youth PII is anonymized and aggregated at the county/ward level.
+

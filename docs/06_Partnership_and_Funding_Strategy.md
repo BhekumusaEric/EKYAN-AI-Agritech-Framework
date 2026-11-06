@@ -38,3 +38,4 @@ graph TD
 > *We built the **EKYAN AI & Agritech Framework**: an open-source, edge-first digital infrastructure tailored specifically for UNICEF and GenU. Our system gives young farmers an AI agronomist that runs directly on budget smartphones with zero internet, an alternative ML credit score based on M-Pesa and satellite vegetation history, and a direct B2B aggregator that connects youth clusters straight to schools and supermarkets.*
 >
 > *By combining edge AI, remote sensing, and open-source software, we don't just teach farming—we turn youth into resilient, bankable, and prosperous business leaders."*
+

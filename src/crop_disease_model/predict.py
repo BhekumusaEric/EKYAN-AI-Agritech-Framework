@@ -92,3 +92,4 @@ if __name__ == "__main__":
     classifier = EdgeCropClassifier()
     result = classifier.predict(b"dummy_image_bytes")
     print(json.dumps(result, indent=2))
+

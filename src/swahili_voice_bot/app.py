@@ -99,3 +99,4 @@ async def chat_agronomist(query: FarmerQuery):
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "EKYAN AI Agronomist API"}
+

@@ -44,3 +44,4 @@ sequenceDiagram
 To resolve the lack of cold-chain infrastructure:
 1. **Dynamic Pickup Scheduling:** Groups neighboring youth farms into a shared logistics run so a single refrigerated truck can collect from 5–10 farms in a tight geographical radius.
 2. **School Feeding Program Integration:** Directly pairs youth farms with local secondary schools under the Ministry of Education feeding program, ensuring zero food miles and zero intermediary markups.
+

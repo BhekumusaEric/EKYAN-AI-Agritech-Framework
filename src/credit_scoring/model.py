@@ -105,3 +105,4 @@ if __name__ == "__main__":
 
     result = scorer.calculate_score(sample_applicant)
     print(json.dumps(result, indent=2))
+
