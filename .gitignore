@@ -1,0 +1,71 @@
+# ── Environment & Secrets ─────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*-service-account.json
+secrets/
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+.Python
+
+# ── Node / npm ────────────────────────────────────────────────
+node_modules/
+.npm/
+.yarn/
+.pnp.*
+
+# ── Next.js ───────────────────────────────────────────────────
+.next/
+out/
+
+# ── Expo / React Native ───────────────────────────────────────
+.expo/
+android/
+ios/
+*.jks
+*.keystore
+
+# ── ML Models & Large Binaries ────────────────────────────────
+*.tflite
+*.onnx
+*.pt
+*.pkl
+*.h5
+*.bin
+data/raw/
+data/processed/
+
+# ── OS ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDEs ──────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+
+# ── Coverage & Tests ──────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+coverage/
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Storybook ─────────────────────────────────────────────────
+storybook-static/
+

@@ -62,3 +62,4 @@ src/                  ← Python source (FastAPI, ML models, voice bot)
 | Frontend / Mobile | Next.js 14, TailwindCSS, Mapbox GL, Recharts; Expo (React Native) |
 | Messaging | WhatsApp Cloud API, Africa's Talking (USSD/SMS/Voice) |
 | Mobile Money | M-Pesa Daraja, Airtel Money |
+
