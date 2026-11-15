@@ -36,6 +36,41 @@
       "additionalMetadataFile": "EkyanStack.metadata.json",
       "displayName": "EkyanStack"
     },
+    "EkyanBudgetStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "EkyanBudgetStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "EkyanBudgetStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://774525420097/us-east-1",
+      "properties": {
+        "templateFile": "EkyanBudgetStack.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::774525420097:role/cdk-hnb659fds-deploy-role-774525420097-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::774525420097:role/cdk-hnb659fds-cfn-exec-role-774525420097-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-774525420097-us-east-1/55d4cbb31cd2ebb3cd447bdc88a070b8a1c5b507429ad39ccf0910abeb9b3e6c.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "EkyanBudgetStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::774525420097:role/cdk-hnb659fds-lookup-role-774525420097-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "EkyanBudgetStack.assets"
+      ],
+      "additionalMetadataFile": "EkyanBudgetStack.metadata.json",
+      "displayName": "EkyanBudgetStack"
+    },
     "Tree": {
       "type": "cdk:tree",
       "properties": {

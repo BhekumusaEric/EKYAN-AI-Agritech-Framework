@@ -376,13 +376,12 @@ cmd_all() {
   header "EKYAN Full Flow Deploy — All 3 Flows"
   require_token
 
-  declare -A FLOW_IDS
+  CREDIT_ID=""; BLOCKER_ID=""; HARVEST_ID=""
 
   for flow_type in credit_prequalification blocker_report harvest_registration; do
     echo ""
     info "── $flow_type ──"
 
-    # Create
     local name; name=$(flow_name "$flow_type")
     local category; category=$(flow_category "$flow_type")
     local create_resp
@@ -392,17 +391,17 @@ cmd_all() {
       -F "categories=[\"$category\"]")
 
     local flow_id
-    if command -v jq &>/dev/null; then
-      flow_id=$(echo "$create_resp" | jq -r '.id // empty')
-    else
-      flow_id=$(python3 -c "import json; d=json.loads('''$create_resp'''); print(d.get('id',''))" 2>/dev/null || echo "")
-    fi
+    flow_id=$(echo "$create_resp" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('id',''))" 2>/dev/null || echo "")
 
     [[ -n "$flow_id" ]] || { warn "Create failed for $flow_type — skipping. Response: $create_resp"; continue; }
     success "Created: $flow_id"
-    FLOW_IDS[$flow_type]="$flow_id"
 
-    # Upload
+    case "$flow_type" in
+      credit_prequalification) CREDIT_ID="$flow_id" ;;
+      blocker_report)          BLOCKER_ID="$flow_id" ;;
+      harvest_registration)    HARVEST_ID="$flow_id" ;;
+    esac
+
     local json_file
     json_file=$(fetch_flow_json "$flow_type")
     local upload_resp
@@ -415,7 +414,6 @@ cmd_all() {
     echo "$upload_resp" | grep -q '"success":true' || { warn "Upload failed for $flow_type: $upload_resp"; continue; }
     success "Uploaded JSON"
 
-    # Publish
     local pub_resp
     pub_resp=$(curl -s -X POST "$GRAPH_API/$flow_id/publish" \
       -H "Authorization: Bearer $WA_TOKEN")
@@ -424,15 +422,10 @@ cmd_all() {
   done
 
   echo ""
-  header "Summary — save these flow IDs in your .env"
-  for flow_type in "${!FLOW_IDS[@]}"; do
-    echo "  ${flow_type^^}_FLOW_ID=${FLOW_IDS[$flow_type]}"
-  done
-  echo ""
-  info "Add the above to your .env file as:"
-  echo "  CREDIT_FLOW_ID=..."
-  echo "  BLOCKER_REPORT_FLOW_ID=..."
-  echo "  HARVEST_REGISTRATION_FLOW_ID=..."
+  header "Summary — add these to your .env"
+  echo "  CREDIT_FLOW_ID=$CREDIT_ID"
+  echo "  BLOCKER_REPORT_FLOW_ID=$BLOCKER_ID"
+  echo "  HARVEST_REGISTRATION_FLOW_ID=$HARVEST_ID"
 }
 
 # ── Entrypoint ────────────────────────────────────────────────────────────────

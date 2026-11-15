@@ -1,0 +1,73 @@
+{
+  "/EkyanBudgetStack": [
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanBudgetStack/EkyanBudget": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanBudget"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanBudgetStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:543 (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:5434)"
+      ]
+    }
+  ],
+  "/EkyanBudgetStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:543 (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:5434)"
+      ]
+    }
+  ],
+  "/EkyanBudgetStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:543 (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:5434)",
+        "Kernel._Kernel_ensureSync (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:69889)",
+        "Kernel.invoke (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmppu6wdctt/lib/program.js:1:54294)"
+      ]
+    }
+  ]
+}

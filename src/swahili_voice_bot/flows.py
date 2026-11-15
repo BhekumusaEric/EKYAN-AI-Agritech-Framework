@@ -28,7 +28,7 @@ WHATSAPP_API      = "https://graph.facebook.com/v19.0"
 # ── Flow JSON definitions ─────────────────────────────────────────────────────
 
 CREDIT_FLOW: dict = {
-    "version": "3.1",
+    "version": "6.0",
     "screens": [
         {
             "id": "CREDIT_FORM",
@@ -125,7 +125,7 @@ CREDIT_FLOW: dict = {
 }
 
 BLOCKER_FLOW: dict = {
-    "version": "3.1",
+    "version": "6.0",
     "screens": [
         {
             "id": "BLOCKER_FORM",
@@ -185,7 +185,7 @@ BLOCKER_FLOW: dict = {
 }
 
 HARVEST_FLOW: dict = {
-    "version": "3.1",
+    "version": "6.0",
     "screens": [
         {
             "id": "HARVEST_FORM",
