@@ -97,28 +97,172 @@ flowchart TD
 
 ---
 
+## 📲 WhatsApp Flows Integration
+
+EKYAN uses [WhatsApp Flows](https://developers.facebook.com/documentation/business-messaging/whatsapp/flows/) to deliver structured, form-based interactions to farmers — no app download required, works on any Android with WhatsApp.
+
+### 3 Live Flows
+
+| Flow | Purpose | Feeds Into |
+| :--- | :--- | :--- |
+| **Credit Pre-Qualification** | Collects M-Pesa activity, farm size, EKYAN training completion | ML credit scoring engine |
+| **Blocker Report** | Structured form for inputs / finance / market / climate blockers | SQS → M&E dashboard |
+| **Harvest Registration** | Registers commodity, volume, harvest date | Buyer matching engine |
+
+### Quick Start (Terminal)
+
+```bash
+# 1. Check dependencies
+./scripts/flows_manager.sh setup
+
+# 2. Start the backend
+cd src && uvicorn main:app --reload --port 8000
+
+# 3. Validate all 3 flow JSONs locally (no Meta account needed)
+./scripts/flows_manager.sh validate
+
+# 4. Preview in browser — copies JSON to clipboard + opens Meta Playground
+./scripts/flows_manager.sh preview credit_prequalification
+./scripts/flows_manager.sh preview blocker_report
+./scripts/flows_manager.sh preview harvest_registration
+```
+
+### Deploy to Meta (once you have credentials)
+
+```bash
+# Create .env.flows from the example
+cp .env.flows.example .env.flows
+# Fill in: WA_TOKEN, WABA_ID, WA_PHONE_ID
+
+# Deploy all 3 flows in one command
+./scripts/flows_manager.sh all
+
+# Or step by step:
+./scripts/flows_manager.sh create  credit_prequalification
+./scripts/flows_manager.sh upload  <flow_id> credit_prequalification
+./scripts/flows_manager.sh publish <flow_id>
+
+# Send a flow to a farmer
+./scripts/flows_manager.sh send 254712345678 credit_prequalification <flow_id>
+
+# List all deployed flows
+./scripts/flows_manager.sh list
+```
+
+### Getting Meta Credentials
+
+1. Go to [developers.facebook.com/apps](https://developers.facebook.com/apps) → **Create App** → Business → Add WhatsApp product
+2. From **WhatsApp → API Setup**, copy:
+   - `WA_TOKEN` — temporary 24h token (or create a permanent System User token)
+   - `WABA_ID` — WhatsApp Business Account ID
+   - `WA_PHONE_ID` — Phone Number ID
+3. Add `WHATSAPP_APP_SECRET` from **App Settings → Basic → App Secret** to your `.env`
+
+> **Note:** `.env.flows` is gitignored. Never commit tokens.
+
+---
+
+## 🖥️ Local Development
+
+### Backend (FastAPI)
+
+```bash
+cd src
+pip install -r ../requirements.txt
+uvicorn main:app --reload --port 8000
+# API docs: http://localhost:8000/docs
+```
+
+### Frontend (Next.js)
+
+```bash
+cd frontend
+npm install
+npm run dev
+# UI: http://localhost:3000
+```
+
+### Environment Variables
+
+Copy `.env.flows.example` to `.env.flows` for WhatsApp Flows credentials.
+All other secrets (AWS, Gemini, WhatsApp) go in `.env` (gitignored).
+
+Key variables:
+
+| Variable | Description |
+| :--- | :--- |
+| `DATABASE_URL` | Aurora PostgreSQL connection string |
+| `GEMINI_API_KEY` | Google Gemini Flash API key (powers the agronomist bot) |
+| `WHATSAPP_ACCESS_TOKEN` | Meta WhatsApp Cloud API token |
+| `WHATSAPP_PHONE_NUMBER_ID` | Meta phone number ID |
+| `WHATSAPP_APP_SECRET` | Meta app secret for webhook signature verification |
+| `WHATSAPP_VERIFY_TOKEN` | Custom token for webhook verification (default: `ekyan_verify`) |
+| `NEXT_PUBLIC_API_URL` | Backend URL for the frontend (default: `http://localhost:8000`) |
+
+---
+
+## ☁️ AWS Infrastructure
+
+Deployed via AWS CDK to `af-south-1` (Cape Town):
+
+| Service | Purpose |
+| :--- | :--- |
+| **Aurora Serverless v2** (PostgreSQL 16) | Primary relational database |
+| **DynamoDB** | Sessions & credit score cache |
+| **SQS** | Async blocker events & harvest registrations |
+| **S3** | Satellite imagery & model artefacts |
+
+```bash
+# Deploy infrastructure
+cd infra && cdk deploy EkyanStack
+
+# Stop Aurora to pause billing
+./infra/pause_stack.sh
+
+# Resume Aurora
+./infra/resume_stack.sh
+```
+
+---
+
 ## 📂 Repository Structure
 
 ```
 ├── docs/
-│   ├── 01_AI_Pocket_Agronomist.md          # Edge CV & WhatsApp Swahili Bot Spec
-│   ├── 02_Alternative_Credit_Scoring.md    # ML Underwriting Model & Feature Engineering
-│   ├── 03_Hyperlocal_Climate_Advisory.md   # Satellite Data & Precision Climate Pipeline
-│   ├── 04_B2B_Farm_To_Fork_Marketplace.md  # Price Forecaster & Contract Aggregator
-│   ├── 05_UNICEF_Donor_ME_Dashboard.md     # Full-Stack M&E Analytics Architecture
-│   └── 06_Partnership_and_Funding_Strategy.md # UNICEF Innovation Fund Pitch Playbook
+│   ├── 01_AI_Pocket_Agronomist.md
+│   ├── 02_Alternative_Credit_Scoring.md
+│   ├── 03_Hyperlocal_Climate_Advisory.md
+│   ├── 04_B2B_Farm_To_Fork_Marketplace.md
+│   ├── 05_UNICEF_Donor_ME_Dashboard.md
+│   └── 06_Partnership_and_Funding_Strategy.md
+├── frontend/                               # Next.js 14 + TailwindCSS dashboard
+│   ├── app/
+│   │   ├── agronomist/page.tsx             # WhatsApp-style chat UI
+│   │   ├── dashboard/page.tsx              # M&E KPI dashboard
+│   │   ├── credit/page.tsx
+│   │   ├── climate/page.tsx
+│   │   └── marketplace/page.tsx
+│   └── components/
+├── infra/
+│   ├── cdk_stack.py                        # AWS CDK stack (Aurora, DynamoDB, SQS, S3)
+│   ├── pause_stack.sh                      # Stop Aurora to save costs
+│   └── resume_stack.sh
+├── scripts/
+│   └── flows_manager.sh                   # WhatsApp Flows CLI manager
 ├── src/
-│   ├── crop_disease_model/
-│   │   └── predict.py                      # Edge inference prototype for leaf pathology
 │   ├── swahili_voice_bot/
-│   │   └── app.py                          # FastAPI conversational agronomist endpoint
-│   ├── credit_scoring/
-│   │   └── model.py                        # Alternative ML credit score pipeline
-│   └── climate_engine/
-│       └── advisory.py                     # NDVI & micro-weather rule engine
-├── requirements.txt                        # Python dependencies
-├── LICENSE                                 # Apache 2.0 Open Source License
-└── README.md                               # Project Overview
+│   │   ├── app.py                          # WhatsApp webhook + Gemini agronomist
+│   │   ├── flows.py                        # WhatsApp Flows JSON + handlers
+│   │   └── blocker_store.py               # Blocker detection → SQS
+│   ├── credit_scoring/model.py
+│   ├── climate_engine/advisory.py
+│   ├── marketplace/engine.py
+│   ├── aws_clients.py
+│   └── main.py                             # FastAPI app entrypoint
+├── .env.flows.example                      # WhatsApp Flows credentials template
+├── requirements.txt
+├── LICENSE
+└── README.md
 ```
 
 ---

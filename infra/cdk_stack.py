@@ -4,6 +4,7 @@ Replaces Supabase with: Aurora Serverless v2 (PostgreSQL), DynamoDB, SQS, S3
 Region: af-south-1 (Cape Town — closest to Kenya)
 """
 
+import os
 import aws_cdk as cdk
 from aws_cdk import (
     aws_rds as rds,
@@ -12,9 +13,13 @@ from aws_cdk import (
     aws_s3 as s3,
     aws_ec2 as ec2,
     aws_secretsmanager as secretsmanager,
+    aws_budgets as budgets,
     Duration, RemovalPolicy,
 )
 from constructs import Construct
+
+BUDGET_LIMIT_USD = float(os.getenv("EKYAN_BUDGET_USD", "20"))
+BUDGET_ALERT_EMAIL = os.getenv("EKYAN_BUDGET_EMAIL", "bhekumusa.eric@gmail.com")
 
 
 class EkyanStack(cdk.Stack):
@@ -105,8 +110,55 @@ class EkyanStack(cdk.Stack):
         cdk.CfnOutput(self, "DataBucketName", value=self.data_bucket.bucket_name)
 
 
+class EkyanBudgetStack(cdk.Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs):
+        super().__init__(scope, id, **kwargs)
+
+        budgets.CfnBudget(self, "EkyanBudget",
+            budget=budgets.CfnBudget.BudgetDataProperty(
+                budget_type="COST",
+                time_unit="MONTHLY",
+                budget_limit=budgets.CfnBudget.SpendProperty(
+                    amount=BUDGET_LIMIT_USD,
+                    unit="USD",
+                ),
+                budget_name="EKYAN-Monthly-Budget",
+            ),
+            notifications_with_subscribers=[
+                budgets.CfnBudget.NotificationWithSubscribersProperty(
+                    notification=budgets.CfnBudget.NotificationProperty(
+                        notification_type="ACTUAL",
+                        comparison_operator="GREATER_THAN",
+                        threshold=80,
+                        threshold_type="PERCENTAGE",
+                    ),
+                    subscribers=[budgets.CfnBudget.SubscriberProperty(
+                        subscription_type="EMAIL",
+                        address=BUDGET_ALERT_EMAIL,
+                    )],
+                ),
+                budgets.CfnBudget.NotificationWithSubscribersProperty(
+                    notification=budgets.CfnBudget.NotificationProperty(
+                        notification_type="ACTUAL",
+                        comparison_operator="GREATER_THAN",
+                        threshold=100,
+                        threshold_type="PERCENTAGE",
+                    ),
+                    subscribers=[budgets.CfnBudget.SubscriberProperty(
+                        subscription_type="EMAIL",
+                        address=BUDGET_ALERT_EMAIL,
+                    )],
+                ),
+            ],
+        )
+
+
 app = cdk.App()
 EkyanStack(app, "EkyanStack",
     env=cdk.Environment(account="774525420097", region="af-south-1"),
+)
+# Budgets is a global service — must deploy to us-east-1
+EkyanBudgetStack(app, "EkyanBudgetStack",
+    env=cdk.Environment(account="774525420097", region="us-east-1"),
 )
 app.synth()

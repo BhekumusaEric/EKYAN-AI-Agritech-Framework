@@ -1,6 +1,7 @@
 # ── Environment & Secrets ─────────────────────────────────────
 .env
 .env.local
+EKYAN_SETUP_TRANSFER.md
 .env.*.local
 *.pem
 *.key
@@ -69,3 +70,4 @@ logs/
 # ── Storybook ─────────────────────────────────────────────────
 storybook-static/
 
+.env.flows
