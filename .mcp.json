@@ -121,6 +121,11 @@
         "AWS_REGION": "af-south-1",
         "FASTMCP_LOG_LEVEL": "ERROR"
       }
+    },
+
+    "meta": {
+      "type": "streamable-http",
+      "url": "https://mcp.facebook.com/devtools"
     }
 
   }
