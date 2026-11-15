@@ -1,0 +1,678 @@
+{
+ "Resources": {
+  "EkyanVpcD65A60E3": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "InstanceTenancy": "default",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/Resource"
+   }
+  },
+  "EkyanVpcpublicSubnet1Subnet2F29A4E9": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "af-south-1a",
+    "CidrBlock": "10.0.0.0/18",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc/publicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/publicSubnet1/Subnet"
+   }
+  },
+  "EkyanVpcpublicSubnet1RouteTable55C2D5F2": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc/publicSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/publicSubnet1/RouteTable"
+   }
+  },
+  "EkyanVpcpublicSubnet1RouteTableAssociation85482CD8": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "EkyanVpcpublicSubnet1RouteTable55C2D5F2"
+    },
+    "SubnetId": {
+     "Ref": "EkyanVpcpublicSubnet1Subnet2F29A4E9"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/publicSubnet1/RouteTableAssociation"
+   }
+  },
+  "EkyanVpcpublicSubnet1DefaultRoute74A39941": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "EkyanVpcIGWE0AFA2D3"
+    },
+    "RouteTableId": {
+     "Ref": "EkyanVpcpublicSubnet1RouteTable55C2D5F2"
+    }
+   },
+   "DependsOn": [
+    "EkyanVpcVPCGW871C8F4E"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/publicSubnet1/DefaultRoute"
+   }
+  },
+  "EkyanVpcpublicSubnet2SubnetF51E638B": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "af-south-1b",
+    "CidrBlock": "10.0.64.0/18",
+    "MapPublicIpOnLaunch": true,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "public"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Public"
+     },
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc/publicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/publicSubnet2/Subnet"
+   }
+  },
+  "EkyanVpcpublicSubnet2RouteTable9255C057": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc/publicSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/publicSubnet2/RouteTable"
+   }
+  },
+  "EkyanVpcpublicSubnet2RouteTableAssociationFBA92509": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "EkyanVpcpublicSubnet2RouteTable9255C057"
+    },
+    "SubnetId": {
+     "Ref": "EkyanVpcpublicSubnet2SubnetF51E638B"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/publicSubnet2/RouteTableAssociation"
+   }
+  },
+  "EkyanVpcpublicSubnet2DefaultRoute464334C8": {
+   "Type": "AWS::EC2::Route",
+   "Properties": {
+    "DestinationCidrBlock": "0.0.0.0/0",
+    "GatewayId": {
+     "Ref": "EkyanVpcIGWE0AFA2D3"
+    },
+    "RouteTableId": {
+     "Ref": "EkyanVpcpublicSubnet2RouteTable9255C057"
+    }
+   },
+   "DependsOn": [
+    "EkyanVpcVPCGW871C8F4E"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/publicSubnet2/DefaultRoute"
+   }
+  },
+  "EkyanVpcisolatedSubnet1Subnet60E01880": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "af-south-1a",
+    "CidrBlock": "10.0.128.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "isolated"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Isolated"
+     },
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc/isolatedSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/isolatedSubnet1/Subnet"
+   }
+  },
+  "EkyanVpcisolatedSubnet1RouteTableD5BC0B08": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc/isolatedSubnet1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/isolatedSubnet1/RouteTable"
+   }
+  },
+  "EkyanVpcisolatedSubnet1RouteTableAssociationF122CCD4": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "EkyanVpcisolatedSubnet1RouteTableD5BC0B08"
+    },
+    "SubnetId": {
+     "Ref": "EkyanVpcisolatedSubnet1Subnet60E01880"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/isolatedSubnet1/RouteTableAssociation"
+   }
+  },
+  "EkyanVpcisolatedSubnet2SubnetCD24E33B": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "AvailabilityZone": "af-south-1b",
+    "CidrBlock": "10.0.192.0/18",
+    "MapPublicIpOnLaunch": false,
+    "Tags": [
+     {
+      "Key": "aws-cdk:subnet-name",
+      "Value": "isolated"
+     },
+     {
+      "Key": "aws-cdk:subnet-type",
+      "Value": "Isolated"
+     },
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc/isolatedSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/isolatedSubnet2/Subnet"
+   }
+  },
+  "EkyanVpcisolatedSubnet2RouteTable080768DB": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc/isolatedSubnet2"
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/isolatedSubnet2/RouteTable"
+   }
+  },
+  "EkyanVpcisolatedSubnet2RouteTableAssociation82DBB6EF": {
+   "Type": "AWS::EC2::SubnetRouteTableAssociation",
+   "Properties": {
+    "RouteTableId": {
+     "Ref": "EkyanVpcisolatedSubnet2RouteTable080768DB"
+    },
+    "SubnetId": {
+     "Ref": "EkyanVpcisolatedSubnet2SubnetCD24E33B"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/isolatedSubnet2/RouteTableAssociation"
+   }
+  },
+  "EkyanVpcIGWE0AFA2D3": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "EkyanStack/EkyanVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/IGW"
+   }
+  },
+  "EkyanVpcVPCGW871C8F4E": {
+   "Type": "AWS::EC2::VPCGatewayAttachment",
+   "Properties": {
+    "InternetGatewayId": {
+     "Ref": "EkyanVpcIGWE0AFA2D3"
+    },
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanVpc/VPCGW"
+   }
+  },
+  "EkyanDbSecretF4241148": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {
+     "ExcludePunctuation": true,
+     "GenerateStringKey": "password",
+     "SecretStringTemplate": "{\"username\":\"ekyan_admin\"}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanDbSecret/Resource"
+   }
+  },
+  "EkyanDbSecretAttachmentFF299305": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "EkyanDbSecretF4241148"
+    },
+    "TargetId": {
+     "Ref": "EkyanAurora0BE84D10"
+    },
+    "TargetType": "AWS::RDS::DBCluster"
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanDbSecret/Attachment/Resource"
+   }
+  },
+  "EkyanDbSgE83C95A1": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "EkyanStack/EkyanDbSg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "255.255.255.255/32",
+      "Description": "Disallow all traffic",
+      "FromPort": 252,
+      "IpProtocol": "icmp",
+      "ToPort": 86
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "public access for MVP",
+      "FromPort": 5432,
+      "IpProtocol": "tcp",
+      "ToPort": 5432
+     }
+    ],
+    "VpcId": {
+     "Ref": "EkyanVpcD65A60E3"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanDbSg/Resource"
+   }
+  },
+  "EkyanAuroraSubnets885B8F0A": {
+   "Type": "AWS::RDS::DBSubnetGroup",
+   "Properties": {
+    "DBSubnetGroupDescription": "Subnets for EkyanAurora database",
+    "SubnetIds": [
+     {
+      "Ref": "EkyanVpcpublicSubnet1Subnet2F29A4E9"
+     },
+     {
+      "Ref": "EkyanVpcpublicSubnet2SubnetF51E638B"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanAurora/Subnets/Default"
+   }
+  },
+  "EkyanAurora0BE84D10": {
+   "Type": "AWS::RDS::DBCluster",
+   "Properties": {
+    "CopyTagsToSnapshot": true,
+    "DBClusterParameterGroupName": "default.aurora-postgresql16",
+    "DBSubnetGroupName": {
+     "Ref": "EkyanAuroraSubnets885B8F0A"
+    },
+    "DatabaseName": "ekyan",
+    "Engine": "aurora-postgresql",
+    "EngineVersion": "16.8",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "EkyanDbSecretF4241148"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "EkyanDbSecretF4241148"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "Port": 5432,
+    "ServerlessV2ScalingConfiguration": {
+     "MaxCapacity": 4,
+     "MinCapacity": 0.5
+    },
+    "VpcSecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "EkyanDbSgE83C95A1",
+       "GroupId"
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Snapshot",
+   "DeletionPolicy": "Snapshot",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanAurora/Resource"
+   }
+  },
+  "EkyanAurorawriter669C7AF5": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "DBClusterIdentifier": {
+     "Ref": "EkyanAurora0BE84D10"
+    },
+    "DBInstanceClass": "db.serverless",
+    "Engine": "aurora-postgresql",
+    "PromotionTier": 0,
+    "PubliclyAccessible": true
+   },
+   "DependsOn": [
+    "EkyanVpcpublicSubnet1DefaultRoute74A39941",
+    "EkyanVpcpublicSubnet1RouteTableAssociation85482CD8",
+    "EkyanVpcpublicSubnet2DefaultRoute464334C8",
+    "EkyanVpcpublicSubnet2RouteTableAssociationFBA92509"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanAurora/writer/Resource"
+   }
+  },
+  "EkyanSessions41E90422": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "phone",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "ts",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "phone",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "ts",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanSessions/Resource"
+   }
+  },
+  "EkyanCreditDecisionsBE6A16ED": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "farmer_id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "farmer_id",
+      "KeyType": "HASH"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanCreditDecisions/Resource"
+   }
+  },
+  "EkyanNudgeDlq8660AB47": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 1209600
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanNudgeDlq/Resource"
+   }
+  },
+  "EkyanNudgeQueue768927BD": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "RedrivePolicy": {
+     "deadLetterTargetArn": {
+      "Fn::GetAtt": [
+       "EkyanNudgeDlq8660AB47",
+       "Arn"
+      ]
+     },
+     "maxReceiveCount": 3
+    },
+    "VisibilityTimeout": 60
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanNudgeQueue/Resource"
+   }
+  },
+  "EkyanBlockerQueueCD49430C": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "VisibilityTimeout": 30
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanBlockerQueue/Resource"
+   }
+  },
+  "EkyanDataBucket34F66377": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/EkyanDataBucket/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/2WQy27CMBBFv4W9cSsQlbrkISFWTRPEtpo4UzAkduoZF0WW/73CoQlqV3Pv8dU8PJOzxUI+T+BKU1VdprUuZSgY1EXAlT4CqpkMh1aJ9ac5ZGuR+bLWqvClQb6xUeXWM+6hrHHkI1sSWaWBtTVDWGROfwPj2GNnGJ1B3gLjFbr70LtbMoM6NWhYFKi809xtnfVtGvcIoiBUDpkaMHBEJ0OR/D14U33ZgzsiP/QdAn9fonAVybABhhII17UnRif6zYctNqt/4DeZzM4Qg1EYRdUZaGxVyjD8WBJR0BfJ8O7RJ5hEFDSXYeXVpb+hVzGKHMl6p1LyzXPrOYqs45M1T3P5Kl8mZ9J66rxh3aDM+/oDEvwmxPIBAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "EkyanStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "AuroraEndpoint": {
+   "Value": {
+    "Fn::GetAtt": [
+     "EkyanAurora0BE84D10",
+     "Endpoint.Address"
+    ]
+   }
+  },
+  "SessionsTable": {
+   "Value": {
+    "Ref": "EkyanSessions41E90422"
+   }
+  },
+  "NudgeQueueUrl": {
+   "Value": {
+    "Ref": "EkyanNudgeQueue768927BD"
+   }
+  },
+  "BlockerQueueUrl": {
+   "Value": {
+    "Ref": "EkyanBlockerQueueCD49430C"
+   }
+  },
+  "DataBucketName": {
+   "Value": {
+    "Ref": "EkyanDataBucket34F66377"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

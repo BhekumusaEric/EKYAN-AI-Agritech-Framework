@@ -1,0 +1,8 @@
+{
+  "app": "/Users/eric/EKYAN-AI-Agritech-Framework/.venv/bin/python cdk_stack.py",
+  "context": {
+    "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/aws-rds:databaseProxyUniqueResourceName": true
+  }
+}

@@ -1,106 +1,197 @@
 """
-Precision Climate Advisory & NDVI Engine
-EKYAN AI & Agritech Framework | UNICEF Kenya
+EKYAN Connect — Hyperlocal Climate & Regenerative Advisory Engine
+Pulls live Open Meteo forecasts + NDVI health → generates Swahili/English nudges.
+BRS problem: P05 — advisory too slow, too generic, wrong language.
+Rule table from Module 3 spec implemented exactly.
 """
 
-import json
+import os
+import httpx
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OPEN_METEO_BASE = "https://api.open-meteo.com/v1/forecast"
+
+# Kenya county → approximate coordinates
+COUNTY_COORDS = {
+    "busia":     (-0.461, 34.111),
+    "kirinyaga": (-0.559, 37.283),
+    "kisumu":    (-0.091, 34.768),
+    "samburu":   (1.215,  36.955),
+    "nairobi":   (-1.286, 36.817),
+    "mombasa":   (-4.043, 39.668),
+    "nakuru":    (-0.303, 36.080),
+    "kakamega":  (0.282,  34.752),
+}
+DEFAULT_COORDS = (-0.023, 37.906)  # Kenya centroid
 
 
 @dataclass
-class ClimateObservation:
+class ClimateNudge:
     county: str
-    sub_county: str
-    rain_probability_24h_pct: int
-    expected_rainfall_mm: float
-    max_temperature_c: float
-    humidity_pct: int
-    satellite_ndvi: float
+    trigger: str
+    message_swahili: str
+    message_english: str
+    severity: str   # info / warning / critical
+    action_required: bool
 
 
-class ClimateAdvisoryEngine:
+async def fetch_forecast(lat: float, lon: float) -> dict:
+    """Fetch 24h forecast from Open Meteo — free, no key required."""
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "hourly": "precipitation,relative_humidity_2m,temperature_2m,soil_moisture_0_to_1cm",
+        "forecast_days": 2,
+        "timezone": "Africa/Nairobi",
+    }
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(OPEN_METEO_BASE, params=params)
+        resp.raise_for_status()
+        return resp.json()
+
+
+def parse_forecast(data: dict) -> dict:
+    """Extract max/avg values from the next 24h of hourly data."""
+    hourly = data.get("hourly", {})
+    precip = hourly.get("precipitation", [0] * 24)[:24]
+    humidity = hourly.get("relative_humidity_2m", [50] * 24)[:24]
+    temp = hourly.get("temperature_2m", [25] * 24)[:24]
+    soil = hourly.get("soil_moisture_0_to_1cm", [0.2] * 24)[:24]
+
+    return {
+        "total_precip_mm":  sum(precip),
+        "max_humidity_pct": max(humidity),
+        "max_temp_c":       max(temp),
+        "avg_temp_c":       sum(temp) / len(temp),
+        "avg_soil_moisture": sum(soil) / len(soil) if soil else 0.2,
+    }
+
+
+def ndvi_health_label(ndvi: float) -> str:
+    if ndvi < 0.20:
+        return "critical"
+    if ndvi < 0.50:
+        return "moderate"
+    return "healthy"
+
+
+def generate_nudges(county: str, forecast: dict, ndvi: Optional[float] = None) -> list[ClimateNudge]:
     """
-    Evaluates meteorological triggers and Sentinel-2 vegetation indices
-    to generate targeted, automated SMS/WhatsApp advisories.
+    Apply the rule table from Module 3 spec.
+    Returns list of nudges to send to the farmer.
     """
+    nudges = []
+    precip   = forecast["total_precip_mm"]
+    humidity = forecast["max_humidity_pct"]
+    temp     = forecast["max_temp_c"]
+    soil     = forecast["avg_soil_moisture"]
 
-    def generate_advisory(self, obs: ClimateObservation) -> Dict[str, Any]:
-        actions = []
-        alerts_swahili = []
-        alerts_english = []
+    # Rule 1: Heavy rain imminent (≥15mm in 24h)
+    if precip >= 15:
+        nudges.append(ClimateNudge(
+            county=county,
+            trigger=f"rain_{precip:.0f}mm",
+            message_swahili=(
+                f"Mvua kubwa inatarajiwa leo ({precip:.0f}mm). "
+                "Usinyunyizie maji leo wala kuweka mbolea ya majani kuzuia isisafishwe na mvua."
+            ),
+            message_english=(
+                f"Heavy rain expected today ({precip:.0f}mm). "
+                "Avoid irrigating or applying foliar fertilizer — nutrients will wash away."
+            ),
+            severity="warning",
+            action_required=True,
+        ))
 
-        # 1. Rain & Irrigation Optimization
-        if obs.expected_rainfall_mm >= 12.0 or obs.rain_probability_24h_pct >= 75:
-            alerts_swahili.append(
-                f"Mvua inayotarajiwa ({obs.expected_rainfall_mm}mm): Usinyunyizie maji mashambani "
-                "leo ili kuokoa gharama za nishati na kuzuia mmomonyoko wa udongo."
-            )
-            alerts_english.append(
-                f"Forecasted rainfall ({obs.expected_rainfall_mm}mm): Hold off on irrigation today "
-                "to conserve water/pumping costs and prevent soil saturation."
-            )
-            actions.append("HALT_IRRIGATION")
+    # Rule 2: High heat + low soil moisture
+    if temp > 32 and soil < 0.18:
+        nudges.append(ClimateNudge(
+            county=county,
+            trigger=f"heat_{temp:.0f}c_soil_{soil:.2f}",
+            message_swahili=(
+                f"Kuna joto kali ({temp:.0f}°C) na unyevu wa udongo ni mdogo. "
+                "Funika mashina ya mimea na nyasi kavu (mulching) ili kuzuia unyevu kupotea."
+            ),
+            message_english=(
+                f"Extreme heat ({temp:.0f}°C) with low soil moisture. "
+                "Apply dry organic mulching around crop roots to preserve moisture."
+            ),
+            severity="critical",
+            action_required=True,
+        ))
 
-        # 2. Disease Trigger: High Humidity + Warm Temperature (Blight favorable)
-        if obs.humidity_pct >= 80 and 18.0 <= obs.max_temperature_c <= 27.0:
-            alerts_swahili.append(
-                "Tahadhari ya Ugonjwa wa Ukungu: Unyevu mwingi angani unaweza kusababisha ukungu wa majani. "
-                "Kagua mimea yako na kuweka dawa asili ya mwarobaini au majivu."
-            )
-            alerts_english.append(
-                "Blight Alert: High ambient humidity favors fungal pathogens. "
-                "Inspect lower foliage and apply preventative organic neem/ash extract."
-            )
-            actions.append("APPLY_ORGANIC_FUNGICIDE")
+    # Rule 3: High humidity + moderate temp → blight risk
+    if humidity > 85 and 18 <= forecast["avg_temp_c"] <= 24:
+        nudges.append(ClimateNudge(
+            county=county,
+            trigger=f"humidity_{humidity:.0f}pct",
+            message_swahili=(
+                f"Hali ya hewa ({humidity:.0f}% unyevu) inachochea ugonjwa wa ukungu kwenye nyanya. "
+                "Kagua sehemu za chini za majani na uweke dawa ya asili ya majivu au mwarobaini mapema."
+            ),
+            message_english=(
+                f"High humidity ({humidity:.0f}%) favours blight on tomatoes. "
+                "Inspect lower leaves and apply preventative neem/wood-ash organic extract early."
+            ),
+            severity="warning",
+            action_required=True,
+        ))
 
-        # 3. Extreme Heat & Soil Stress
-        if obs.max_temperature_c >= 31.0:
-            alerts_swahili.append(
-                f"Joto kali ({obs.max_temperature_c}°C): Weka matandazo ya nyasi kavu (mulching) "
-                "kwenye misingi ya mimea ili kuzuia unyevu kuyeyuka."
-            )
-            alerts_english.append(
-                f"High temperature alert ({obs.max_temperature_c}°C): Apply dry grass mulching "
-                "around plant root zones to reduce soil evapotranspiration."
-            )
-            actions.append("APPLY_MULCHING")
+    # Rule 4: NDVI health alert
+    if ndvi is not None and ndvi < 0.20:
+        nudges.append(ClimateNudge(
+            county=county,
+            trigger=f"ndvi_{ndvi:.2f}",
+            message_swahili=(
+                f"Afya ya mazao yako ni mbaya (NDVI={ndvi:.2f}). "
+                "Hii inaweza kuwa dalili ya ukame, wadudu, au udongo duni. "
+                "Wasiliana na mshauri wako wa EKYAN haraka."
+            ),
+            message_english=(
+                f"Your crop health is critical (NDVI={ndvi:.2f}). "
+                "This may indicate drought stress, pest damage, or poor soil. "
+                "Contact your EKYAN agripreneur coordinator urgently."
+            ),
+            severity="critical",
+            action_required=True,
+        ))
 
-        # Fallback if conditions are stable
-        if not alerts_swahili:
-            alerts_swahili.append(
-                "Hali ya anga ni shwari leo. Endelea na ratiba yako ya kawaida ya kilimo hai."
-            )
-            alerts_english.append(
-                "Weather conditions are stable today. Continue with your scheduled regenerative farm routine."
-            )
-            actions.append("ROUTINE_MONITORING")
+    # Default: all clear
+    if not nudges:
+        nudges.append(ClimateNudge(
+            county=county,
+            trigger="all_clear",
+            message_swahili="Hali ya hewa ni nzuri leo. Endelea na kazi yako ya shamba. Jaza maji ya umwagiliaji asubuhi mapema.",
+            message_english="Weather conditions are favourable today. Continue normal farm activities. Water crops early morning.",
+            severity="info",
+            action_required=False,
+        ))
 
-        return {
-            "county": obs.county,
-            "sub_county": obs.sub_county,
-            "vegetation_health_ndvi": round(obs.satellite_ndvi, 2),
-            "triggered_actions": actions,
-            "sms_advisories": {
-                "swahili": " | ".join(alerts_swahili),
-                "english": " | ".join(alerts_english)
-            }
-        }
+    return nudges
+
+
+async def get_advisory(county: str, ndvi: Optional[float] = None) -> list[ClimateNudge]:
+    """Main entry point — fetch forecast and return nudges for a county."""
+    county_lower = county.lower()
+    lat, lon = COUNTY_COORDS.get(county_lower, DEFAULT_COORDS)
+
+    data = await fetch_forecast(lat, lon)
+    forecast = parse_forecast(data)
+    return generate_nudges(county, forecast, ndvi)
 
 
 if __name__ == "__main__":
-    engine = ClimateAdvisoryEngine()
+    import asyncio, json
 
-    obs = ClimateObservation(
-        county="Busia",
-        sub_county="Matayos",
-        rain_probability_24h_pct=85,
-        expected_rainfall_mm=18.5,
-        max_temperature_c=28.0,
-        humidity_pct=88,
-        satellite_ndvi=0.62
-    )
+    async def demo():
+        nudges = await get_advisory("Kirinyaga", ndvi=0.18)
+        for n in nudges:
+            print(f"\n[{n.severity.upper()}] {n.trigger}")
+            print(f"SW: {n.message_swahili}")
+            print(f"EN: {n.message_english}")
 
-    advisory = engine.generate_advisory(obs)
-    print(json.dumps(advisory, indent=2))
-
+    asyncio.run(demo())

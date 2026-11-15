@@ -1,0 +1,21 @@
+{
+  "version": "53.0.0",
+  "files": {
+    "45abec6f7f87e12bb31ba3b666d9b26e3a1d84d592bbdb6bb43fb1de5adcb7d2": {
+      "displayName": "EkyanStack Template",
+      "source": {
+        "path": "EkyanStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "774525420097-af-south-1-c79009f0": {
+          "bucketName": "cdk-hnb659fds-assets-774525420097-af-south-1",
+          "objectKey": "45abec6f7f87e12bb31ba3b666d9b26e3a1d84d592bbdb6bb43fb1de5adcb7d2.json",
+          "region": "af-south-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::774525420097:role/cdk-hnb659fds-file-publishing-role-774525420097-af-south-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

@@ -1,0 +1,127 @@
+{
+  "mcpServers": {
+
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github@latest"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}" }
+    },
+
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem@latest",
+        "/Users/eric/EKYAN-AI-Agritech-Framework"
+      ]
+    },
+
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search@latest"],
+      "env": { "BRAVE_API_KEY": "${BRAVE_API_KEY}" }
+    },
+
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer@latest"]
+    },
+
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@2025.11.25"]
+    },
+
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+
+    "sentry": {
+      "command": "npx",
+      "args": ["-y", "@sentry/mcp-server@latest"],
+      "env": {
+        "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
+        "SENTRY_ORG": "${SENTRY_ORG}",
+        "SENTRY_PROJECT": "${SENTRY_PROJECT}"
+      }
+    },
+
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "figma-mcp@latest"],
+      "env": { "FIGMA_PERSONAL_ACCESS_TOKEN": "${FIGMA_PERSONAL_ACCESS_TOKEN}" }
+    },
+
+    "mapbox": {
+      "command": "npx",
+      "args": ["-y", "@mapbox/mcp-server@latest"],
+      "env": { "MAPBOX_ACCESS_TOKEN": "${MAPBOX_ACCESS_TOKEN}" }
+    },
+
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+
+    "aws-core": {
+      "command": "uvx",
+      "args": ["awslabs.core-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "af-south-1",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    },
+
+    "aws-docs": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "env": {
+        "AWS_REGION": "af-south-1",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    },
+
+    "aws-cdk": {
+      "command": "uvx",
+      "args": ["awslabs.cdk-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "af-south-1",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    },
+
+    "aws-cost": {
+      "command": "uvx",
+      "args": ["awslabs.cost-analysis-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "af-south-1",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    },
+
+    "aws-bedrock-kb": {
+      "command": "uvx",
+      "args": ["awslabs.bedrock-kb-retrieval-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "af-south-1",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    },
+
+    "aws-sns-sqs": {
+      "command": "uvx",
+      "args": ["awslabs.amazon-sns-sqs-mcp-server@latest"],
+      "env": {
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "af-south-1",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      }
+    }
+
+  }
+}

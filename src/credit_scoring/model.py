@@ -1,108 +1,208 @@
 """
-Alternative ML Credit Scoring Pipeline for Youth Agripreneurs
-EKYAN AI & Agritech Framework | UNICEF Kenya
+EKYAN Connect — Alternative ML Credit Scoring Engine
+Agri-Creditworthiness Index (ACI): 300–850
+BRS problem: P03 — youth locked out of finance due to no land title / CRB history.
+Feature weights per spec:
+  25% Commitment & Knowledge (EKYAN modules)
+  25% Financial Discipline (M-Pesa velocity)
+  20% Physical Cultivation Proof (NDVI)
+  15% Social Capital (peer endorsements)
+  15% Market Discipline (delivery history)
 """
 
-import json
-from dataclasses import dataclass
-from typing import Dict, Any
+import os
+import numpy as np
+import pandas as pd
+from dataclasses import dataclass, field
+from typing import Optional
+from dotenv import load_dotenv
 
+load_dotenv()
+
+# ── Feature schema ────────────────────────────────────────────────────────────
 
 @dataclass
-class AgripreneurProfile:
-    youth_id: str
-    county: str
-    modules_completed_pct: float     # e.g., 0.85 = 85% of EKYAN courses finished
-    quiz_average_score: float        # e.g., 0.90 = 90% score
-    mpesa_monthly_inflow_kes: float  # Monthly mobile money inflows (KES)
-    savings_consistency_months: int  # Consecutive months saving in village Chama
-    satellite_ndvi_mean: float       # Satellite crop health index (0.0 to 1.0)
-    peer_endorsements_count: int     # Positive peer reviews in local youth co-op
-    past_delivery_adherence_pct: float # Contract fulfillment rate (0.0 to 1.0)
+class FarmerCreditProfile:
+    farmer_id: str
+
+    # 25% — Commitment & Knowledge
+    ekyan_modules_completed: int        # 0–20
+    quiz_avg_score: float               # 0.0–1.0
+    demo_days_attended: int             # 0–10
+
+    # 25% — Financial Discipline (M-Pesa)
+    mpesa_monthly_inflow_kes: float     # avg monthly inflow KES
+    mpesa_consistency_score: float      # 0.0–1.0 (regularity of transactions)
+    chama_savings_months: int           # months of consistent chama savings
+
+    # 20% — Physical Cultivation Proof (Satellite NDVI)
+    ndvi_season1: float                 # 0.0–1.0
+    ndvi_season2: float                 # 0.0–1.0
+    farm_size_acres: float              # verified plot size
+
+    # 15% — Social Capital
+    peer_endorsements: int              # 0–5
+    cooperative_standing: float         # 0.0–1.0 (good=1, suspended=0)
+    mentor_verified: bool
+
+    # 15% — Market Discipline
+    deliveries_completed: int           # fulfilled produce contracts
+    delivery_adherence_rate: float      # 0.0–1.0
+    previous_loan_repaid: Optional[bool] = None  # None = no prior loan
 
 
-class AlternativeCreditScorer:
-    """
-    ML Rule-Weighted & Gradient Boosted Simulator scoring unbanked youth.
-    Outputs: Score (300 - 850), Tier (A, B, C), and Max Approved Microloan (KES).
-    """
+# ── Feature engineering ───────────────────────────────────────────────────────
 
-    def calculate_score(self, profile: AgripreneurProfile) -> Dict[str, Any]:
-        score = 300.0  # Base score
+FEATURE_WEIGHTS = {
+    "knowledge_score":    0.25,
+    "financial_score":    0.25,
+    "cultivation_score":  0.20,
+    "social_score":       0.15,
+    "market_score":       0.15,
+}
 
-        # 1. Educational Commitment (Max 150 points)
-        edu_score = (profile.modules_completed_pct * 80.0) + (profile.quiz_average_score * 70.0)
-        score += edu_score
+def engineer_features(p: FarmerCreditProfile) -> pd.DataFrame:
+    knowledge_score = (
+        min(p.ekyan_modules_completed / 20, 1.0) * 0.5 +
+        p.quiz_avg_score * 0.3 +
+        min(p.demo_days_attended / 10, 1.0) * 0.2
+    )
 
-        # 2. Financial Discipline & M-Pesa Inflow (Max 150 points)
-        # Cap inflow calculation at KES 30,000/month
-        normalized_inflow = min(profile.mpesa_monthly_inflow_kes / 30000.0, 1.0)
-        savings_factor = min(profile.savings_consistency_months / 6.0, 1.0)
-        fin_score = (normalized_inflow * 80.0) + (savings_factor * 70.0)
-        score += fin_score
+    # Normalise M-Pesa inflow: KES 5,000/month = baseline 0.5
+    mpesa_norm = min(p.mpesa_monthly_inflow_kes / 10_000, 1.0)
+    financial_score = (
+        mpesa_norm * 0.5 +
+        p.mpesa_consistency_score * 0.3 +
+        min(p.chama_savings_months / 12, 1.0) * 0.2
+    )
 
-        # 3. Satellite Earth Observation Proof of Farming (Max 120 points)
-        # Healthy active canopy NDVI is typically 0.35 - 0.75
-        normalized_ndvi = min(max(profile.satellite_ndvi_mean - 0.20, 0.0) / 0.55, 1.0)
-        sat_score = normalized_ndvi * 120.0
-        score += sat_score
+    ndvi_avg = (p.ndvi_season1 + p.ndvi_season2) / 2
+    cultivation_score = (
+        ndvi_avg * 0.6 +
+        min(p.farm_size_acres / 5, 1.0) * 0.4
+    )
 
-        # 4. Social Capital & Peer Trust (Max 60 points)
-        peer_score = min(profile.peer_endorsements_count / 5.0, 1.0) * 60.0
-        score += peer_score
+    social_score = (
+        min(p.peer_endorsements / 5, 1.0) * 0.4 +
+        p.cooperative_standing * 0.4 +
+        (0.2 if p.mentor_verified else 0.0)
+    )
 
-        # 5. Contract Fulfillment History (Max 70 points)
-        delivery_score = profile.past_delivery_adherence_pct * 70.0
-        score += delivery_score
+    market_score = (
+        min(p.deliveries_completed / 10, 1.0) * 0.5 +
+        p.delivery_adherence_rate * 0.5
+    )
 
-        final_score = int(round(score))
+    # Repayment history bonus/penalty
+    repayment_bonus = 0.0
+    if p.previous_loan_repaid is True:
+        repayment_bonus = 0.05
+    elif p.previous_loan_repaid is False:
+        repayment_bonus = -0.10
 
-        # Risk Classification & Loan Limit
-        if final_score >= 700:
-            tier = "Tier A (Low Risk - Highly Bankable)"
-            max_loan_kes = 35000.0   # ~$270 USD
-            recommendation = "Approved for solar drip-irrigation kit and certified seeds."
-        elif final_score >= 580:
-            tier = "Tier B (Moderate Risk - Eligible with Co-op Guarantee)"
-            max_loan_kes = 15000.0   # ~$115 USD
-            recommendation = "Approved for bio-fertilizer and nursery seed starter pack."
-        else:
-            tier = "Tier C (Building Credit Capacity)"
-            max_loan_kes = 5000.0    # ~$38 USD
-            recommendation = "Recommend completing 2 more EKYAN modules and 60 days of Chama savings."
+    return pd.DataFrame([{
+        "knowledge_score":   knowledge_score,
+        "financial_score":   financial_score,
+        "cultivation_score": cultivation_score,
+        "social_score":      social_score,
+        "market_score":      market_score,
+        "repayment_bonus":   repayment_bonus,
+    }])
 
-        return {
-            "youth_id": profile.youth_id,
-            "county": profile.county,
-            "credit_score": final_score,
-            "risk_tier": tier,
-            "max_loan_limit_kes": max_loan_kes,
-            "recommendation": recommendation,
-            "score_breakdown": {
-                "education_commitment": round(edu_score, 1),
-                "financial_discipline": round(fin_score, 1),
-                "satellite_farming_proof": round(sat_score, 1),
-                "social_trust": round(peer_score, 1),
-                "delivery_reliability": round(delivery_score, 1)
-            }
-        }
+
+# ── Scoring ───────────────────────────────────────────────────────────────────
+
+@dataclass
+class CreditDecision:
+    farmer_id: str
+    aci_score: int              # 300–850
+    risk_tier: str              # A / B / C / D
+    recommended_loan_usd: int   # $0, $50, $150, $350
+    approved: bool
+    score_breakdown: dict
+    improvement_actions: list[str] = field(default_factory=list)
+
+
+def score_farmer(profile: FarmerCreditProfile) -> CreditDecision:
+    features = engineer_features(profile)
+
+    # Weighted composite (0.0–1.0)
+    composite = (
+        features["knowledge_score"].iloc[0]   * FEATURE_WEIGHTS["knowledge_score"] +
+        features["financial_score"].iloc[0]   * FEATURE_WEIGHTS["financial_score"] +
+        features["cultivation_score"].iloc[0] * FEATURE_WEIGHTS["cultivation_score"] +
+        features["social_score"].iloc[0]      * FEATURE_WEIGHTS["social_score"] +
+        features["market_score"].iloc[0]      * FEATURE_WEIGHTS["market_score"] +
+        features["repayment_bonus"].iloc[0]
+    )
+    composite = float(np.clip(composite, 0.0, 1.0))
+
+    # Map 0–1 → ACI 300–850
+    aci = int(300 + composite * 550)
+
+    # Risk tiers and loan amounts
+    if aci >= 720:
+        tier, loan_usd, approved = "A", 350, True
+    elif aci >= 620:
+        tier, loan_usd, approved = "B", 150, True
+    elif aci >= 520:
+        tier, loan_usd, approved = "C", 50, True
+    else:
+        tier, loan_usd, approved = "D", 0, False
+
+    # Actionable improvement advice (BRS explainability requirement)
+    actions = []
+    row = features.iloc[0]
+    if row["knowledge_score"] < 0.6:
+        actions.append("Complete at least 5 more EKYAN regenerative agriculture modules to boost your score.")
+    if row["financial_score"] < 0.5:
+        actions.append("Maintain consistent weekly M-Pesa savings or chama contributions for 30 more days.")
+    if row["cultivation_score"] < 0.5:
+        actions.append("Your satellite crop health (NDVI) is low — apply mulching and irrigation to improve canopy cover.")
+    if row["social_score"] < 0.5:
+        actions.append("Get 2 more peer endorsements from your cooperative members or a verified EKYAN mentor.")
+    if row["market_score"] < 0.5:
+        actions.append("Complete 3 more produce delivery contracts through EKYAN Connect marketplace.")
+
+    return CreditDecision(
+        farmer_id=profile.farmer_id,
+        aci_score=aci,
+        risk_tier=tier,
+        recommended_loan_usd=loan_usd,
+        approved=approved,
+        score_breakdown={
+            "knowledge":   round(row["knowledge_score"], 3),
+            "financial":   round(row["financial_score"], 3),
+            "cultivation": round(row["cultivation_score"], 3),
+            "social":      round(row["social_score"], 3),
+            "market":      round(row["market_score"], 3),
+            "composite":   round(composite, 3),
+        },
+        improvement_actions=actions,
+    )
 
 
 if __name__ == "__main__":
-    scorer = AlternativeCreditScorer()
+    import json
 
-    sample_applicant = AgripreneurProfile(
-        youth_id="EKYAN-KEN-2026-0842",
-        county="Kirinyaga",
-        modules_completed_pct=0.92,
-        quiz_average_score=0.88,
-        mpesa_monthly_inflow_kes=18500.0,
-        savings_consistency_months=5,
-        satellite_ndvi_mean=0.58,
-        peer_endorsements_count=6,
-        past_delivery_adherence_pct=0.95
+    sample = FarmerCreditProfile(
+        farmer_id="EKYAN-BUS-0042",
+        ekyan_modules_completed=12,
+        quiz_avg_score=0.74,
+        demo_days_attended=4,
+        mpesa_monthly_inflow_kes=4200,
+        mpesa_consistency_score=0.68,
+        chama_savings_months=7,
+        ndvi_season1=0.52,
+        ndvi_season2=0.61,
+        farm_size_acres=1.5,
+        peer_endorsements=3,
+        cooperative_standing=0.9,
+        mentor_verified=True,
+        deliveries_completed=4,
+        delivery_adherence_rate=0.80,
+        previous_loan_repaid=None,
     )
 
-    result = scorer.calculate_score(sample_applicant)
-    print(json.dumps(result, indent=2))
-
+    decision = score_farmer(sample)
+    print(json.dumps(decision.__dict__, indent=2))

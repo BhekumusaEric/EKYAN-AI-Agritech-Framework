@@ -1,0 +1,611 @@
+{
+  "/EkyanStack": [
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/AuroraEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuroraEndpoint"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/SessionsTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SessionsTable"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/NudgeQueueUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "NudgeQueueUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/BlockerQueueUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BlockerQueueUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/DataBucketName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DataBucketName"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:543 (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:5434)"
+      ]
+    }
+  ],
+  "/EkyanStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:543 (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:5434)"
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcD65A60E3"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/IGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcIGWE0AFA2D3"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/VPCGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcVPCGW871C8F4E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanDbSecret/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanDbSecretF4241148"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Secret2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanDbSg/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanDbSgE83C95A1"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new SecurityGroup2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanAurora/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanAurora0BE84D10"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DatabaseCluster2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanSessions/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanSessions41E90422"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Table2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanCreditDecisions/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanCreditDecisionsBE6A16ED"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Table2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanNudgeDlq/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanNudgeDlq8660AB47"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Queue2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanNudgeQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanNudgeQueue768927BD"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Queue2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanBlockerQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanBlockerQueueCD49430C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Queue2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanDataBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanDataBucket34F66377"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Bucket2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/EkyanStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:543 (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:5434)",
+        "Kernel._Kernel_ensureSync (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:69889)",
+        "Kernel.invoke (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:54294)"
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/publicSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcpublicSubnet1Subnet2F29A4E9"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/publicSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcpublicSubnet1RouteTable55C2D5F2"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/publicSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcpublicSubnet1RouteTableAssociation85482CD8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/publicSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcpublicSubnet1DefaultRoute74A39941"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:197 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/publicSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcpublicSubnet2SubnetF51E638B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/publicSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcpublicSubnet2RouteTable9255C057"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/publicSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcpublicSubnet2RouteTableAssociationFBA92509"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/publicSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcpublicSubnet2DefaultRoute464334C8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:197 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/isolatedSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcisolatedSubnet1Subnet60E01880"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:262 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/isolatedSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcisolatedSubnet1RouteTableD5BC0B08"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:262 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/isolatedSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcisolatedSubnet1RouteTableAssociationF122CCD4"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:262 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/isolatedSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcisolatedSubnet2SubnetCD24E33B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:262 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/isolatedSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcisolatedSubnet2RouteTable080768DB"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:262 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanVpc/isolatedSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanVpcisolatedSubnet2RouteTableAssociation82DBB6EF"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/jsii-kernel-Y7k63k/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:262 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanDbSecret/Attachment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanDbSecretAttachmentFF299305"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DatabaseCluster2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)"
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanAurora/Subnets/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanAuroraSubnets885B8F0A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DatabaseCluster2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211921)"
+      ]
+    }
+  ],
+  "/EkyanStack/EkyanAurora/writer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "EkyanAurorawriter669C7AF5"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DatabaseCluster2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/vj/1b2swnqx4p5cv19lks75s4cm0000gn/T/tmp5g2wfbdg/lib/program.js:1:211877)"
+      ]
+    }
+  ]
+}
