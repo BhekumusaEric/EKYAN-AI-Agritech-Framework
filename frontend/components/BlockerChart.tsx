@@ -4,6 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
+import { CheckCircle2 } from "lucide-react";
 
 interface BlockerChartProps {
   data: { category: string; status: string }[];
@@ -45,8 +46,10 @@ export default function BlockerChart({ data }: BlockerChartProps) {
 
   if (!chartData.length) {
     return (
-      <div className="flex h-48 items-center justify-center text-gray-400 text-sm">
-        No blocker data yet
+      <div className="flex h-48 flex-col items-center justify-center gap-2 rounded-xl bg-emerald-50/60 text-center">
+        <CheckCircle2 aria-hidden="true" className="text-emerald-700" size={22} />
+        <p className="text-sm font-semibold text-slate-700">No blockers in the connected feed</p>
+        <p className="text-xs text-slate-500">If a need is reported, it will appear here for follow-up.</p>
       </div>
     );
   }

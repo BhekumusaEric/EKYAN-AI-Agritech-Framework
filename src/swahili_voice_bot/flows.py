@@ -39,11 +39,14 @@ CREDIT_FLOW: dict = {
                 "children": [
                     {
                         "type": "TextHeading",
-                        "text": "Ombi la Mkopo / Loan Application"
+                        "text": "Tathmini ya Utayari wa Fedha / Finance Readiness"
                     },
                     {
                         "type": "TextSubheading",
-                        "text": "Jibu maswali haya ili tupime sifa yako ya mkopo."
+                        "text": (
+                            "Wasifu huu husaidia mapitio ya kibinadamu; si idhini ya mkopo. "
+                            "This profile supports human review; it is not a loan approval."
+                        )
                     },
                     {
                         "type": "TextInput",
@@ -384,7 +387,10 @@ async def _handle_credit_flow(farmer_phone: str, data: dict) -> dict:
         log.error(f"Credit scoring call failed: {e}")
         result = {"error": str(e)}
 
-    log.info(f"Credit flow processed for ...{farmer_phone[-4:]}: {result.get('risk_tier', 'error')}")
+    log.info(
+        f"Credit flow processed for ...{farmer_phone[-4:]}: "
+        f"{result.get('review_status', 'error')}"
+    )
     return {"action": "credit_scored", "result": result}
 
 

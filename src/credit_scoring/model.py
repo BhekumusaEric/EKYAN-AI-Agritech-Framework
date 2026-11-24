@@ -116,10 +116,9 @@ def engineer_features(p: FarmerCreditProfile) -> pd.DataFrame:
 class CreditDecision:
     farmer_id: str
     aci_score: int              # 300–850
-    risk_tier: str              # A / B / C / D
-    recommended_loan_usd: int   # $0, $50, $150, $350
-    approved: bool
-    score_breakdown: dict
+    readiness_band: str         # A / B / C / D; decision support only
+    review_status: str
+    score_breakdown: dict[str, float]
     improvement_actions: list[str] = field(default_factory=list)
 
 
@@ -140,15 +139,15 @@ def score_farmer(profile: FarmerCreditProfile) -> CreditDecision:
     # Map 0–1 → ACI 300–850
     aci = int(300 + composite * 550)
 
-    # Risk tiers and loan amounts
+    # Readiness bands do not represent a lending decision.
     if aci >= 720:
-        tier, loan_usd, approved = "A", 350, True
+        readiness_band = "A"
     elif aci >= 620:
-        tier, loan_usd, approved = "B", 150, True
+        readiness_band = "B"
     elif aci >= 520:
-        tier, loan_usd, approved = "C", 50, True
+        readiness_band = "C"
     else:
-        tier, loan_usd, approved = "D", 0, False
+        readiness_band = "D"
 
     # Actionable improvement advice (BRS explainability requirement)
     actions = []
@@ -167,9 +166,8 @@ def score_farmer(profile: FarmerCreditProfile) -> CreditDecision:
     return CreditDecision(
         farmer_id=profile.farmer_id,
         aci_score=aci,
-        risk_tier=tier,
-        recommended_loan_usd=loan_usd,
-        approved=approved,
+        readiness_band=readiness_band,
+        review_status="requires_human_review",
         score_breakdown={
             "knowledge":   round(row["knowledge_score"], 3),
             "financial":   round(row["financial_score"], 3),

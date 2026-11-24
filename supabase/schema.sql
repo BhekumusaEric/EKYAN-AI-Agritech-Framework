@@ -70,16 +70,15 @@ create table if not exists credit_decisions (
     id                      uuid primary key default gen_random_uuid(),
     farmer_id               text not null,
     aci_score               int not null,
-    risk_tier               text not null,
-    approved                boolean not null,
-    recommended_loan_usd    int not null,
+    readiness_band          text not null,
+    review_status           text not null default 'requires_human_review',
     score_breakdown         jsonb,
     improvement_actions     text[],
     created_at              timestamptz default now()
 );
 
 create index if not exists idx_credit_decisions_farmer on credit_decisions(farmer_id);
-create index if not exists idx_credit_decisions_tier   on credit_decisions(risk_tier);
+create index if not exists idx_credit_decisions_band   on credit_decisions(readiness_band);
 
 -- ============================================================
 -- MODULE 3: Climate Advisory

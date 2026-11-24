@@ -1,233 +1,213 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, Bot, Send, ShieldAlert, Sprout } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { StatusNotice } from "@/components/ui/status-notice";
 
 interface Message {
-  role: "farmer" | "bot";
+  role: "farmer" | "assistant";
   text: string;
-  blocker?: string | null;
-  language?: string;
   ts: string;
 }
 
-const COUNTIES = ["Kirinyaga", "Busia", "Kisumu", "Samburu", "Nakuru", "Kakamega", "Unknown"];
-
 const SUGGESTIONS = [
   "Mimea yangu ina madoa mekundu",
-  "I need a loan for seeds",
-  "Bei ya nyanya ni ngapi leo?",
-  "My crops are wilting from drought",
+  "I need poultry vaccines",
+  "My chickens look unwell",
+  "I need feed for my farm",
 ];
+
+const SYNTHETIC_ID = /^synthetic-[a-z0-9-]+$/i;
 
 export default function AgronomistPage() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput]       = useState("");
-  const [county, setCounty]     = useState("Kirinyaga");
-  const [phone, setPhone]       = useState("+254700000000");
-  const [loading, setLoading]   = useState(false);
-  const [status, setStatus]     = useState<"idle" | "ok" | "error">("idle");
+  const [input, setInput] = useState("");
+  const [participantId, setParticipantId] = useState("synthetic-demo-001");
+  const [invalidId, setInvalidId] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages]);
 
-  function ts() {
+  function timestamp() {
     return new Date().toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" });
   }
 
-  async function send(text?: string) {
-    const msg = (text ?? input).trim();
-    if (!msg || loading) return;
-    setInput("");
-    setMessages((m) => [...m, { role: "farmer", text: msg, ts: ts() }]);
-    setLoading(true);
-    setStatus("idle");
-
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/agronomist/api/v1/chat`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ farmer_phone: phone, message: msg, county }),
-        }
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setMessages((m) => [...m, {
-        role: "bot",
-        text: data.reply,
-        blocker: data.blocker_detected,
-        language: data.language,
-        ts: ts(),
-      }]);
-      setStatus("ok");
-    } catch (e) {
-      setMessages((m) => [...m, {
-        role: "bot",
-        text: "⚠️ Cannot reach the backend.\n\nMake sure FastAPI is running:\n  cd src && uvicorn main:app --reload --port 8000",
-        ts: ts(),
-      }]);
-      setStatus("error");
-    } finally {
-      setLoading(false);
+  function send(text = input) {
+    const message = text.trim();
+    if (!message) return;
+    if (!SYNTHETIC_ID.test(participantId.trim())) {
+      setInvalidId(true);
+      return;
     }
+
+    setInvalidId(false);
+    setInput("");
+    const ts = timestamp();
+    setMessages((current) => [
+      ...current,
+      { role: "farmer", text: message, ts },
+      {
+        role: "assistant",
+        text: "No verified Ask Nia source is connected in this prototype, so I will not generate agricultural guidance. Please route this question to a qualified extension officer.",
+        ts,
+      },
+    ]);
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    send();
   }
 
   return (
-    /* Full viewport height minus the parent's padding — use dvh so mobile works too */
-    <div className="flex flex-col" style={{ height: "100dvh" }}>
-
-      {/* ── Top bar ── */}
-      <div className="shrink-0 flex items-center justify-between border-b border-border bg-white px-6 py-4">
-        <div>
-          <h1 className="text-lg font-bold text-gray-900">Daktari wa Mimea 🌿</h1>
-          <p className="text-xs text-gray-400 mt-0.5">AI Pocket Agronomist · WhatsApp Bot Test Console</p>
-        </div>
-        <span className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
-          status === "ok"    ? "bg-green-50 text-unicef-green" :
-          status === "error" ? "bg-red-50 text-unicef-red"    :
-                               "bg-unicef-pale text-unicef-navy"
-        }`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${
-            status === "ok" ? "bg-unicef-green animate-pulse" :
-            status === "error" ? "bg-unicef-red" : "bg-unicef-blue"
-          }`} />
-          {status === "ok" ? "Connected" : status === "error" ? "Error" : "Ready"}
-        </span>
-      </div>
-
-      {/* ── Session controls ── */}
-      <div className="shrink-0 grid grid-cols-2 gap-3 border-b border-border bg-surface px-6 py-3">
-        <div>
-          <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-            Farmer Phone
-          </label>
-          <input
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-unicef-blue"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-            County
-          </label>
-          <select
-            value={county}
-            onChange={(e) => setCounty(e.target.value)}
-            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-unicef-blue"
-          >
-            {COUNTIES.map((c) => <option key={c}>{c}</option>)}
-          </select>
-        </div>
-      </div>
-
-      {/* ── Messages ── */}
-      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-unicef-pale text-3xl">
-              🌿
-            </div>
+    <div className="mx-auto grid min-h-[calc(100dvh-72px)] max-w-[1440px] gap-5 p-4 sm:p-7 lg:grid-cols-[minmax(0,1fr)_300px] lg:p-9">
+      <section className="flex min-h-[620px] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+              <Sprout aria-hidden="true" size={20} />
+            </span>
             <div>
-              <p className="font-semibold text-gray-700">Karibu! Message Daktari wa Mimea</p>
-              <p className="text-sm text-gray-400 mt-1">Ask in Swahili or English</p>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2 mt-2">
-              {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => send(s)}
-                  className="rounded-full border border-border bg-white px-4 py-2 text-xs text-gray-600 hover:border-unicef-blue hover:text-unicef-navy transition-colors"
-                >
-                  {s}
-                </button>
-              ))}
+              <h1 className="text-sm font-semibold text-slate-900">Ask Nia · advisory bridge</h1>
+              <p className="mt-0.5 text-xs text-slate-500">Mock adapter · Busia poultry pilot</p>
             </div>
           </div>
-        )}
+          <Badge variant={messages.length ? "warning" : "neutral"}>
+            {messages.length ? "Needs human review" : "Mock · no source"}
+          </Badge>
+        </div>
 
-        {messages.map((m, i) => (
-          <div key={i} className={`flex gap-3 ${m.role === "farmer" ? "flex-row-reverse" : "flex-row"}`}>
-            {/* Avatar */}
-            <div className={`shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${
-              m.role === "farmer" ? "bg-unicef-blue text-white" : "bg-unicef-pale text-unicef-navy"
-            }`}>
-              {m.role === "farmer" ? "F" : "🌿"}
-            </div>
+        <div className="grid gap-3 border-b border-slate-100 bg-slate-50/70 px-5 py-3 sm:grid-cols-2 sm:px-6">
+          <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            Synthetic participant ID
+            <input
+              value={participantId}
+              onChange={(event) => {
+                setParticipantId(event.target.value);
+                setInvalidId(false);
+              }}
+              className="mt-1.5 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-slate-800 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+              aria-invalid={invalidId || !SYNTHETIC_ID.test(participantId.trim())}
+            />
+          </label>
+          <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            Pilot context
+            <input
+              value="Busia · Poultry"
+              readOnly
+              className="mt-1.5 min-h-11 w-full rounded-xl border border-slate-200 bg-slate-100 px-3 text-sm font-normal normal-case tracking-normal text-slate-700"
+            />
+          </label>
+        </div>
 
-            {/* Bubble */}
-            <div className={`max-w-[70%] ${m.role === "farmer" ? "items-end" : "items-start"} flex flex-col gap-1`}>
-              <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                m.role === "farmer"
-                  ? "bg-unicef-blue text-white rounded-tr-sm"
-                  : "bg-white border border-border text-gray-800 rounded-tl-sm"
-              }`}>
-                <p className="whitespace-pre-wrap">{m.text}</p>
+        <div aria-live="polite" className="flex-1 space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
+          {messages.length === 0 && (
+            <div className="flex min-h-[360px] flex-col items-center justify-center gap-4 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-700">
+                <Bot aria-hidden="true" size={27} />
+              </span>
+              <div>
+                <p className="font-semibold text-slate-800">Test the advisory hand-off</p>
+                <p className="mx-auto mt-1 max-w-md text-sm leading-5 text-slate-500">
+                  Ask a sample question. Without a verified source, this preview declines to answer and points to a human.
+                </p>
               </div>
-              <div className={`flex flex-wrap items-center gap-1.5 text-[10px] text-gray-400 ${
-                m.role === "farmer" ? "justify-end" : "justify-start"
-              }`}>
-                <span>{m.ts}</span>
-                {m.blocker && (
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">
-                    Blocker: {m.blocker}
-                  </span>
-                )}
-                {m.language && (
-                  <span className="rounded-full bg-unicef-pale px-2 py-0.5 font-semibold text-unicef-navy">
-                    {m.language}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {loading && (
-          <div className="flex gap-3">
-            <div className="h-8 w-8 shrink-0 rounded-full bg-unicef-pale flex items-center justify-center text-xs">🌿</div>
-            <div className="rounded-2xl rounded-tl-sm bg-white border border-border px-4 py-3">
-              <div className="flex gap-1 items-center">
-                {[0, 1, 2].map((i) => (
-                  <span
-                    key={i}
-                    className="h-2 w-2 rounded-full bg-unicef-blue animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
+              <div className="flex max-w-xl flex-wrap justify-center gap-2">
+                {SUGGESTIONS.map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => send(suggestion)}
+                    className="min-h-10 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition hover:border-brand-300 hover:bg-brand-50"
+                  >
+                    {suggestion}
+                  </button>
                 ))}
               </div>
             </div>
-          </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
+          )}
 
-      {/* ── Input bar ── */}
-      <div className="shrink-0 border-t border-border bg-white px-6 py-4">
-        <div className="flex gap-3">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-            placeholder="Type in Swahili or English…"
-            disabled={loading}
-            className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-unicef-blue disabled:opacity-50"
-          />
-          <button
-            onClick={() => send()}
-            disabled={loading || !input.trim()}
-            className="rounded-xl bg-unicef-blue px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-unicef-navy disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Send
-          </button>
+          {messages.map((message, index) => (
+            <div key={`${message.ts}-${index}`} className={`flex gap-3 ${message.role === "farmer" ? "flex-row-reverse" : ""}`}>
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${message.role === "farmer" ? "bg-brand-900 text-xs font-semibold text-white" : "bg-brand-50 text-brand-700"}`}>
+                {message.role === "farmer" ? "F" : <Sprout aria-hidden="true" size={16} />}
+              </span>
+              <div className={`flex max-w-[82%] flex-col gap-1.5 ${message.role === "farmer" ? "items-end" : "items-start"}`}>
+                <div className={`rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === "farmer" ? "rounded-tr-sm bg-brand-900 text-white" : "rounded-tl-sm border border-amber-200 bg-amber-50 text-amber-950"}`}>
+                  <p className="whitespace-pre-wrap">{message.text}</p>
+                  {message.role === "assistant" && (
+                    <div className="mt-3 border-t border-amber-200 pt-2 text-xs leading-5">
+                      <p><strong>Source:</strong> None returned · Ask Nia adapter not connected</p>
+                      <p><strong>Confidence:</strong> Unavailable · human review required</p>
+                      <Link href="/blockers" className="mt-2 inline-flex min-h-9 items-center font-semibold text-brand-800 underline underline-offset-2">
+                        Prepare an extension blocker
+                      </Link>
+                    </div>
+                  )}
+                </div>
+                <span className="text-[10px] text-slate-400">{message.ts}</span>
+              </div>
+            </div>
+          ))}
+          <div ref={bottomRef} />
         </div>
-        <p className="mt-2 text-center text-[11px] text-gray-400">
-          Simulates a WhatsApp message · Same endpoint handles real Meta webhook events
-        </p>
-      </div>
+
+        <form onSubmit={submit} className="border-t border-slate-100 bg-white p-4 sm:px-6 sm:py-5">
+          {invalidId && (
+            <p role="alert" className="mb-2 text-xs text-rose-700">
+              Use a synthetic ID beginning with synthetic-.
+            </p>
+          )}
+          <div className="flex gap-2">
+            <input
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder="Write a synthetic message in English or Kiswahili…"
+              className="min-h-11 min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10"
+              aria-label="Synthetic message"
+            />
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-700 px-4 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <span className="hidden sm:inline">Send</span>
+              <Send aria-hidden="true" size={16} />
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside className="space-y-4">
+        <StatusNotice tone="warning" title="No verified advice source is configured">
+          The mock deliberately returns no agronomic instruction. Connect approved Ask Nia material before showing answers or citations.
+        </StatusNotice>
+        <div className="flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+          <ShieldAlert aria-hidden="true" className="mt-0.5 shrink-0 text-amber-700" size={18} />
+          <div>
+            <p className="text-sm font-semibold">Synthetic data only</p>
+            <p className="mt-1 text-xs leading-5 text-amber-900/80">
+              Do not enter real participant, financial, or location details. This mock does not send messages to an API.
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+          <h2 className="text-sm font-semibold text-slate-800">Human-in-the-loop rules</h2>
+          <ul className="mt-3 space-y-3 text-xs leading-5 text-slate-600">
+            <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600" />Answers require an approved source and confidence.</li>
+            <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600" />Low confidence or no source must be escalated.</li>
+            <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600" />Never invent dosage or veterinary instructions.</li>
+          </ul>
+          <p className="mt-4 flex items-center gap-1 text-[11px] text-slate-400">
+            <ArrowUpRight aria-hidden="true" size={13} /> Advisory is not a professional diagnosis.
+          </p>
+        </div>
+      </aside>
     </div>
   );
 }

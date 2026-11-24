@@ -1,5 +1,7 @@
 # Module 2: Alternative ML Credit Scoring for Youth Agripreneurs
 
+> **Status: unvalidated research concept — not approved for MVP or lending use.** The claims, data sources, feature weights, model, and named partner examples below have not been validated with Kenyan lenders, affected users, or legal/privacy review. EKYAN's Business Book uses recordkeeping and application preparation only; it does not calculate creditworthiness or make lending recommendations. Do not connect this concept to a lending workflow without a separately approved, locally validated specification.
+
 ## 1. Problem Statement
 Commercial banks and formal lenders in Kenya require three primary underwriting components:
 1. Formal land ownership (Title Deeds).
@@ -30,10 +32,10 @@ graph LR
         H[Explainable AI Layer - SHAP]
     end
 
-    subgraph Underwriting Output
-        I[Agri-Credit Score: 300 to 850]
-        J[Microloan Recommendation: $50 to $350]
-        K[Risk Grade: Tier A, B, C]
+    subgraph Human-Reviewed Decision Support
+        I[Finance Readiness Score]
+        J[Readiness Band]
+        K[Human Review Required]
     end
 
     A --> F
@@ -64,7 +66,7 @@ graph LR
 
 * **Base Model:** Gradient-boosted decision trees (`XGBClassifier`) optimized for imbalanced tabular credit datasets.
 * **Fairness & Bias Audit:** Strict exclusion of protected demographic features (ethnicity, clan, marital status). Continuous calibration to ensure equal opportunity and parity for young mothers and female entrepreneurs.
-* **Explainability (SHAP):** Every credit decision outputs an explainability breakdown. If a young applicant is denied, the system generates actionable advice:
+* **Explainability:** The prototype returns a score breakdown and improvement actions for human review. It does not approve or reject applicants or recommend a loan amount:
   * *"Complete 2 more regenerative agriculture modules on pest control."*
   * *"Maintain consistent weekly savings in your cooperative account for 30 more days."*
 

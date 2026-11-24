@@ -16,9 +16,22 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+configured_origins = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+local_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+allowed_origins = (
+    configured_origins
+    if os.getenv("EKYAN_ENV", "development").casefold() == "production"
+    else list(dict.fromkeys(local_origins + configured_origins))
+)
+
 # Module imports
 from swahili_voice_bot.app import app as agronomist_app
 from credit_scoring.model import FarmerCreditProfile, score_farmer
+from credit_scoring.presentation import credit_review_response
 from climate_engine.advisory import get_advisory
 from marketplace.engine import (
     HarvestRegistration, BuyerOrder, forecast_price,
@@ -35,7 +48,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(","),
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -69,15 +82,13 @@ class CreditRequest(BaseModel):
 def credit_score(req: CreditRequest) -> dict:
     profile = FarmerCreditProfile(**req.model_dump())
     decision = score_farmer(profile)
-    return {
-        "farmer_id": decision.farmer_id,
-        "aci_score": decision.aci_score,
-        "risk_tier": decision.risk_tier,
-        "approved": decision.approved,
-        "recommended_loan_usd": decision.recommended_loan_usd,
-        "score_breakdown": decision.score_breakdown,
-        "improvement_actions": decision.improvement_actions,
-    }
+    return credit_review_response(
+        farmer_id=decision.farmer_id,
+        aci_score=decision.aci_score,
+        readiness_band=decision.readiness_band,
+        score_breakdown=decision.score_breakdown,
+        improvement_actions=decision.improvement_actions,
+    )
 
 
 # ── Climate advisory endpoint ─────────────────────────────────────────────────
@@ -186,3 +197,39 @@ def list_commodities():
 @app.get("/health")
 def health():
     return {"status": "healthy", "service": "EKYAN Connect API", "version": "1.0.0"}
+
+
+# ── BRS MVP services: local persistence, scoped roles and audit ───────────────
+
+from ekyan_mvp.auth import development_secret
+from ekyan_mvp.database import initialize_database, make_engine, make_session_factory
+from ekyan_mvp.router import create_router
+
+_environment = os.getenv("EKYAN_ENV", "development").strip().lower()
+_configured_auth_secret = os.getenv("EKYAN_AUTH_SECRET", "")
+if _environment == "production" and len(_configured_auth_secret) < 32:
+    raise RuntimeError("EKYAN_AUTH_SECRET must be configured with at least 32 characters in production.")
+if _environment == "production" and os.getenv("EKYAN_ENABLE_DEMO_AUTH", "false").lower() == "true":
+    raise RuntimeError("Demo role sign-in must remain disabled in production.")
+
+_auth_secret = _configured_auth_secret or development_secret()
+_demo_auth_enabled = (
+    _environment != "production"
+    and os.getenv("EKYAN_ENABLE_DEMO_AUTH", "true").strip().lower() == "true"
+)
+_mvp_engine = make_engine()
+_mvp_session_factory = make_session_factory(_mvp_engine)
+
+
+@app.on_event("startup")
+def initialize_mvp_services() -> None:
+    initialize_database(_mvp_engine, _mvp_session_factory)
+
+
+app.include_router(
+    create_router(
+        _mvp_session_factory,
+        auth_secret=_auth_secret,
+        demo_auth_enabled=_demo_auth_enabled,
+    )
+)

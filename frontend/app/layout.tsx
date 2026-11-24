@@ -1,23 +1,28 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
+import AppShell from "@/components/AppShell";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "EKYAN Connect — UNICEF Kenya",
-  description: "Real-Time M&E Dashboard · Youth Agripreneurs · Generation Unlimited",
+  title: "EKYAN Connect — Programme workspace",
+  description: "Agripreneur support, climate intelligence, markets, and finance readiness.",
+  icons: {
+    icon: "/ekyan-mark.svg",
+    shortcut: "/ekyan-mark.svg",
+  },
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} flex h-screen overflow-hidden bg-surface`}>
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto min-w-0">
-          {children}
-        </main>
+      <body className={`${inter.className} antialiased`}>
+        <LanguageProvider>
+          <AppShell>{children}</AppShell>
+        </LanguageProvider>
       </body>
     </html>
   );

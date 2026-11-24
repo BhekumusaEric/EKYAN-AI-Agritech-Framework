@@ -404,7 +404,7 @@ ID
 Requirement
 Priority
 BR-050
-The solution shall generate an agripreneur finance-readiness profile from consented records.
+The solution shall generate an agripreneur finance-preparation profile from the agripreneur's records.
 Must
 BR-051
 The profile shall display applicant, business, amount requested, purpose, term, data period and evidence quality.
@@ -416,16 +416,16 @@ BR-053
 The profile shall show customer activity, order fulfilment, supplier performance and buyer relationships.
 Must
 BR-054
-The profile shall calculate an explainable finance-readiness band.
+The MVP shall show a plain-language record-coverage checklist and evidence provenance; it shall not calculate or display a creditworthiness score, eligibility band or approval likelihood.
 Must
 BR-055
-Every readiness factor shall display its source, weight and plain-language explanation.
+Every displayed financial figure shall identify its source and whether it is self-reported, programme-confirmed, independently verified or unavailable.
 Must
 BR-056
-Gender, disability, ethnicity, religion and other protected characteristics shall not be used as credit-readiness factors.
+Gender, disability, age, ethnicity, religion and other protected characteristics shall not be used as lending or creditworthiness factors.
 Must
 BR-057
-The profile shall be labelled as decision support and not a loan approval.
+The profile shall be labelled as an informational record summary, not a credit decision or loan approval.
 Must
 BR-058
 A lender shall only view a profile where active purpose-specific consent exists.
@@ -434,11 +434,17 @@ BR-059
 Profile access and consent changes shall be audited.
 Must
 BR-060
-The profile should include affordability and stress scenarios aligned to the agricultural production cycle.
+The profile may show user-entered cash-flow scenarios aligned to the agricultural production cycle, clearly labelled as estimates and not borrowing advice.
 Should
 BR-061
 The solution should support supplier-direct disbursement and buyer-linked repayment designs in later integration phases.
 Should
+BR-062
+Agripreneurs shall be able to download a finance-application summary with an explicit choice to include detailed transaction rows; generating the export shall not transmit it to a lender.
+Must
+BR-063
+The Credit Coach shall suggest record-completion actions only and shall not claim an applicant qualifies, recommend borrowing or predict lender approval.
+Must
 10.7 Investor-readiness requirements
 ID
 Requirement

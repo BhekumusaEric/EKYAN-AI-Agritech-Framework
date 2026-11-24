@@ -1,0 +1,11 @@
+# 07 · Glossary
+- **Agripreneur:** trained youth entrepreneur serving local farmers with advice and services.
+- **Inputs:** what farmers need to produce: seeds, fertiliser, feed, chicks, vaccines, equipment.
+- **Input constraint:** inputs unavailable at the right time, quantity or price.
+- **Blocker:** anything stopping a farmer acting on what they learnt.
+- **Pooled demand:** combined orders from many farmers for one item/area/date.
+- **Off-taker:** buyer who commits to buy produce.
+- **Credit-readiness profile:** explainable summary of business activity a lender may view with consent. Not a credit decision.
+- **Adoption intention:** a farmer's stated plan to adopt a practice.
+- **VSLA:** Village Savings and Loan Association.
+- **Ask Nia / OneNetwork / Agribytes:** existing Kuza tools (advisory, transactions/marketplace, learning).

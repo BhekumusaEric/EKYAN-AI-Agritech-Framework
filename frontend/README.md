@@ -34,3 +34,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Farmer preview and languages
+
+The agripreneur workspace includes a read-only **Farmer view · preview** with three fictional poultry scenarios for Busia wards. These records are product-test examples, not real farmer, supplier, weather, or market data. The MVP does not provide farmer accounts; an agripreneur records requests only with a farmer's consent.
+
+English and Kiswahili can be selected in the top bar and the preference is saved on the device. The farmer preview and field log have initial Kiswahili copy; it is marked as a draft and should be reviewed with local farmers before field use. Ateso, Luhya, Olusamia, Dholuo, Kikuyu, Kamba, Somali, and Kalenjin appear as planned language packs but remain unavailable until their translations are reviewed with local speakers.

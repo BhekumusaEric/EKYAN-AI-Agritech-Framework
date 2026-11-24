@@ -164,14 +164,35 @@ cp .env.flows.example .env.flows
 
 ## 🖥️ Local Development
 
-### Backend (FastAPI)
+### EKYAN MVP backend (FastAPI)
 
-```bash
-cd src
-pip install -r ../requirements.txt
+```powershell
+# From the repository root; the lean manifest avoids installing the ML stack.
+python -m venv .venv
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements-api.txt
+New-Item -ItemType Directory -Force data
+$env:EKYAN_ENV = "development"
+$env:EKYAN_ENABLE_DEMO_AUTH = "true"
+$env:EKYAN_DATABASE_URL = "sqlite:///../data/ekyan_local.db"
+Set-Location src
 uvicorn main:app --reload --port 8000
 # API docs: http://localhost:8000/docs
 ```
+
+The MVP starts with synthetic Busia/Poultry records in a local SQLite database. Its demo role selector obtains a signed API session; backend role checks, audit events, offline sync receipts, blocker SLA routing, pooled commitments, consent-gated profiles, KPI calculations, data-quality checks, and CSV export are active. Demo sign-in is for local development only.
+
+To add the reproducible larger demo dataset to a local SQLite database, run this from the repository root. It is an additive seed, requires `--apply`, refuses non-SQLite databases and existing non-synthetic participant/activity data, and can be run only once per database:
+
+```powershell
+$env:EKYAN_DATABASE_URL = "sqlite:///data/ekyan_local.db"
+.\.venv\Scripts\python.exe scripts\seed_synthetic_demo.py --apply
+```
+
+The seed fills the pilot to 15 agripreneurs, 3 suppliers, 1,500 farmers, 2,000 orders, 300 blockers, 600 adoption intentions, six months of transactions/savings, and six synthetic programme-cost periods. It uses generated demo labels, no phone numbers, and no real partner or market feed.
+
+The field log also accepts consent-gated synthetic adoption intentions through the offline queue. K6 reports the share of farmers with a logged intention who have a fulfilled order; this is a service-action proxy, not verification that a farming practice was adopted.
 
 ### Frontend (Next.js)
 
@@ -181,6 +202,12 @@ npm install
 npm run dev
 # UI: http://localhost:3000
 ```
+
+The frontend defaults to `http://127.0.0.1:8000` for the API, matching the local backend bind address. Set `NEXT_PUBLIC_API_URL` before starting Next.js if the backend is hosted elsewhere.
+
+### Scope and production readiness
+
+The local MVP accepts synthetic records only. Do not enter real participant information or connect WhatsApp, M-Pesa, lenders, suppliers, or other partners. Production deployment still requires a reviewed identity provider, managed secrets, database migrations, privacy/consent review, approved partner agreements, operational monitoring, and end-to-end testing against the deployment environment. The legacy agronomist, credit-scoring, climate, and marketplace modules remain separate services and are not enabled as live partner integrations by this MVP.
 
 ### Environment Variables
 
@@ -197,7 +224,10 @@ Key variables:
 | `WHATSAPP_PHONE_NUMBER_ID` | Meta phone number ID |
 | `WHATSAPP_APP_SECRET` | Meta app secret for webhook signature verification |
 | `WHATSAPP_VERIFY_TOKEN` | Custom token for webhook verification (default: `ekyan_verify`) |
-| `NEXT_PUBLIC_API_URL` | Backend URL for the frontend (default: `http://localhost:8000`) |
+| `NEXT_PUBLIC_API_URL` | Backend URL for the frontend (default: `http://127.0.0.1:8000`) |
+| `EKYAN_DATABASE_URL` | Local MVP database; use SQLite during synthetic development |
+| `EKYAN_AUTH_SECRET` | Required 32+ character signing secret when `EKYAN_ENV=production` |
+| `EKYAN_ENABLE_DEMO_AUTH` | Enables synthetic role sign-in in development; must be false in production |
 
 ---
 

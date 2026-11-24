@@ -5,8 +5,6 @@ WhatsApp Cloud API webhook + Gemini Flash "Daktari wa Mimea" bot.
 
 import os
 import json
-import hmac
-import hashlib
 import logging
 from typing import Optional
 
@@ -19,6 +17,7 @@ from dotenv import load_dotenv
 
 from swahili_voice_bot.blocker_store import detect_blocker_category, save_blocker
 from swahili_voice_bot.flows import handle_flow_response, send_flow_message, FLOWS
+from swahili_voice_bot.webhook_security import verify_meta_webhook_signature
 
 load_dotenv()
 
@@ -32,6 +31,8 @@ WHATSAPP_APP_SECRET   = os.getenv("WHATSAPP_APP_SECRET", "")   # Meta app secret
 GEMINI_API_KEY        = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")
 
 gemini_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+if not WHATSAPP_APP_SECRET:
+    log.warning("WHATSAPP_APP_SECRET is unset; webhook requests will be rejected.")
 
 SYSTEM_PROMPT = """You are "Daktari wa Mimea" (Plant Doctor), an expert agronomist assistant \
 for youth farmers in Kenya under the UNICEF EKYAN programme.
@@ -60,16 +61,11 @@ app = FastAPI(
 
 def verify_whatsapp_signature(payload: bytes, signature_header: str) -> bool:
     """Verify X-Hub-Signature-256 from Meta to prevent spoofed webhooks."""
-    if not WHATSAPP_APP_SECRET:
-        return True  # skip in dev when secret not set
-    if not signature_header.startswith("sha256="):
-        return False
-    expected = hmac.new(
-        WHATSAPP_APP_SECRET.encode(),
+    return verify_meta_webhook_signature(
         payload,
-        hashlib.sha256,
-    ).hexdigest()
-    return hmac.compare_digest(expected, signature_header[7:])
+        signature_header,
+        WHATSAPP_APP_SECRET,
+    )
 
 
 # ── WhatsApp send helper ──────────────────────────────────────────────────────
@@ -192,12 +188,17 @@ async def _process_flow_and_reply(farmer_phone: str, flow_token: str, response_j
 
     if flow_type == "credit_prequalification":
         r = result.get("result", {})
-        approved = r.get("approved", False)
-        msg = (
-            f"✅ Ombi lako la mkopo limepokewa!\n"
-            f"Alama yako: {r.get('aci_score', 'N/A')}/100 ({r.get('risk_tier', '')})\n"
-            f"{'✅ Umeidhinishwa!' if approved else '⚠️ Endelea kukuza alama yako.'}"
-        )
+        if r.get("review_status") == "requires_human_review":
+            msg = (
+                "✅ Taarifa zako za utayari wa kifedha zimepokelewa.\n"
+                "Hii ni taarifa ya kusaidia mapitio ya kibinadamu tu — si idhini ya mkopo. "
+                "Mkopeshaji ndiye hufanya uamuzi wa mwisho."
+            )
+        else:
+            msg = (
+                "⚠️ Hatukuweza kuandaa wasifu wa utayari wa kifedha. "
+                "Hakuna uamuzi wa mkopo uliofanywa. Tafadhali wasiliana na mratibu wako."
+            )
     elif flow_type == "blocker_report":
         msg = (
             "✅ Tatizo lako limeandikwa. Mratibu wako wa EKYAN atawasiliana nawe hivi karibuni. "
@@ -264,8 +265,8 @@ async def chat_direct(req: ChatRequest):
 
 FLOW_META = {
     "credit_prequalification": {
-        "header": "💳 Ombi la Mkopo / Loan Application",
-        "body":   "Jaza fomu hii ili tupime sifa yako ya mkopo bila dhamana. / Fill this form to check your loan eligibility without collateral.",
+        "header": "Tathmini ya Utayari wa Fedha / Finance Readiness",
+        "body":   "Wasifu huu ni wa kusaidia mapitio tu, si idhini ya mkopo. / This profile supports human review; it is not a loan approval.",
     },
     "blocker_report": {
         "header": "🚨 Ripoti Tatizo / Report a Problem",
