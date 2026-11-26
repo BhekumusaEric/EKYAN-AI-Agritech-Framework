@@ -1,6 +1,6 @@
-# EKYAN AI & Agritech Engineering Framework
-### Open-Source Digital Blueprint for UNICEF Kenya & Generation Unlimited (GenU)
-*Empowering Young Agripreneurs with Offline Edge AI, Alternative Credit Scoring, Precision Climate Intelligence, and Fair Market Access.*
+# EKYAN Connect
+### A practical coordination and intelligence platform for the EKYAN programme
+*Help agripreneurs turn farmer needs into accountable responses, input fulfilment and verified learning.*
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Target Initiative](https://img.shields.io/badge/Initiative-EKYAN%20%7C%20UNICEF%20Kenya-green.svg)](https://www.unicef.org/kenya/)
@@ -12,18 +12,28 @@
 
 The **EKYAN** (**Engaging Kenyan Youth in Agriculture and Nutrition**) program is a flagship multi-stakeholder partnership spearheaded by **UNICEF Kenya**, the **Government of Kenya**, and **Generation Unlimited (GenU)** alongside partners such as SNV, Kuza Biashara, and Educate!. 
 
-While EKYAN provides training and community hubs, young agripreneurs face critical systemic hurdles:
-1. **Pest & Crop Failure:** Lack of localized extension services leading to devastating crop losses.
-2. **Financial Exclusion:** Inability to access credit without land titles or traditional collateral.
-3. **Severe Climate Shocks:** Recurring droughts and unseasonal rains in arid and semi-arid lands (ASALs).
-4. **Predatory Middlemen:** Farmgate price exploitation and absence of cold-chain storage.
-5. **Connectivity Constraints:** Remote rural youth operating on low-end smartphones with intermittent 2G/3G connectivity.
+The immediate product problem is operational: a farmer's need or blocker can be recorded during programme activity, but ownership, response, fulfilment and confirmation are hard to follow across people and organisations. EKYAN Connect gives agripreneurs one simple workflow to close that loop, while giving the programme a clearer view of what is still waiting and what has been confirmed.
 
-**This repository provides a comprehensive, production-ready AI and Software Engineering framework designed to directly solve these challenges.**
+> **Current pilot direction:** start with the Busia poultry cohort and synthetic data. The MVP prioritizes offline field capture, blocker ownership and follow-up, pooled input requests, supplier response and farmer/agripreneur confirmation. Bookkeeping and a finance-preparation checklist support the workflow. Scores, credit decisions, live advisory, climate services and buyer/investor matching are not MVP promises. See [EKYANBRS.md](./EKYANBRS.md) for scope and safeguards.
+
+The older module specifications below describe design concepts and possible later phases; they are not evidence of production integrations or validated outcomes.
 
 ---
 
-## 🏛️ System Architecture
+## 🏛️ Pilot operating loop
+
+```mermaid
+flowchart LR
+    A[Farmer need or blocker] --> B[Agripreneur records with consent]
+    B --> C[Human owner and next step]
+    C --> D[Response or input fulfilment]
+    D --> E[Farmer / agripreneur confirms if it helped]
+    E --> F[Programme learns from verified evidence]
+```
+
+The interface should make the next action obvious: **Today**, **Record a need**, **Follow up**, and **Business records**. It should work with intermittent connectivity and clearly label synthetic or unverified information.
+
+## 🏛️ Longer-term architecture concepts
 
 ```mermaid
 flowchart TD
@@ -97,15 +107,15 @@ flowchart TD
 
 ---
 
-## 📲 WhatsApp Flows Integration
+## 📲 Messaging integration concepts
 
-EKYAN uses [WhatsApp Flows](https://developers.facebook.com/documentation/business-messaging/whatsapp/flows/) to deliver structured, form-based interactions to farmers — no app download required, works on any Android with WhatsApp.
+WhatsApp Flows may provide a later channel for structured interactions, subject to programme approval, consent, connectivity and partner setup. The flows below are concepts, not live integrations.
 
-### 3 Live Flows
+### Proposed flows
 
 | Flow | Purpose | Feeds Into |
 | :--- | :--- | :--- |
-| **Credit Pre-Qualification** | Collects M-Pesa activity, farm size, EKYAN training completion | ML credit scoring engine |
+| **Finance Record Preparation** | Helps users review records and evidence coverage, with explicit consent before any future partner sharing | Human-reviewed, consent-gated finance profile (no score or approval prediction) |
 | **Blocker Report** | Structured form for inputs / finance / market / climate blockers | SQS → M&E dashboard |
 | **Harvest Registration** | Registers commodity, volume, harvest date | Buyer matching engine |
 
@@ -181,7 +191,9 @@ uvicorn main:app --reload --port 8000
 # API docs: http://localhost:8000/docs
 ```
 
-The MVP starts with synthetic Busia/Poultry records in a local SQLite database. Its demo role selector obtains a signed API session; backend role checks, audit events, offline sync receipts, blocker SLA routing, pooled commitments, consent-gated profiles, KPI calculations, data-quality checks, and CSV export are active. Demo sign-in is for local development only.
+The MVP starts with synthetic Busia/Poultry records in a local SQLite database. Create a local prototype account from the sign-in screen using a `Synthetic` or `Demo` name, an `.invalid` email address, and a password with at least 12 characters. Agripreneur access is immediate; partner and programme roles wait for administrator approval. The API verifies every account token and role, records sign-in and approval events, and revokes sessions on sign-out. Legacy demo-role sign-in is for local development only.
+
+To review pending partner-role requests locally, optionally set `EKYAN_BOOTSTRAP_ADMIN_EMAIL=demo.admin@example.invalid` and a test-only `EKYAN_BOOTSTRAP_ADMIN_PASSWORD` of at least 12 characters before the first API startup. The bootstrap administrator is created once in the database; never reuse a personal password.
 
 To add the reproducible larger demo dataset to a local SQLite database, run this from the repository root. It is an additive seed, requires `--apply`, refuses non-SQLite databases and existing non-synthetic participant/activity data, and can be run only once per database:
 
@@ -203,11 +215,11 @@ npm run dev
 # UI: http://localhost:3000
 ```
 
-The frontend defaults to `http://127.0.0.1:8000` for the API, matching the local backend bind address. Set `NEXT_PUBLIC_API_URL` before starting Next.js if the backend is hosted elsewhere.
+The frontend defaults to `http://localhost:8000` for the API, matching the local backend and its HttpOnly session cookie. Set `NEXT_PUBLIC_API_URL` before starting Next.js if the backend is hosted elsewhere.
 
 ### Scope and production readiness
 
-The local MVP accepts synthetic records only. Do not enter real participant information or connect WhatsApp, M-Pesa, lenders, suppliers, or other partners. Production deployment still requires a reviewed identity provider, managed secrets, database migrations, privacy/consent review, approved partner agreements, operational monitoring, and end-to-end testing against the deployment environment. The legacy agronomist, credit-scoring, climate, and marketplace modules remain separate services and are not enabled as live partner integrations by this MVP.
+The local MVP accepts synthetic records only. Do not enter real participant information or connect WhatsApp, M-Pesa, lenders, suppliers, or other partners. Authentication now has account creation, password sign-in, scrypt password hashes, signed and revocable sessions, HttpOnly browser cookies, per-user roles, admin review for partner roles, and role-checked APIs. Account registration is enabled in development with synthetic names and `.invalid` email addresses; production registration is off unless `EKYAN_ENABLE_REGISTRATION=true`. Production still requires privacy and partner approvals, HTTPS, managed secrets, a PostgreSQL database, backup/restore validation, rate limiting, email verification and recovery, monitoring, and end-to-end deployment review. The legacy agronomist, credit-scoring, climate, and marketplace modules remain separate services and are not enabled as live partner integrations by this MVP.
 
 ### Environment Variables
 
@@ -224,10 +236,17 @@ Key variables:
 | `WHATSAPP_PHONE_NUMBER_ID` | Meta phone number ID |
 | `WHATSAPP_APP_SECRET` | Meta app secret for webhook signature verification |
 | `WHATSAPP_VERIFY_TOKEN` | Custom token for webhook verification (default: `ekyan_verify`) |
-| `NEXT_PUBLIC_API_URL` | Backend URL for the frontend (default: `http://127.0.0.1:8000`) |
+| `NEXT_PUBLIC_API_URL` | Backend URL for the frontend (default: `http://localhost:8000`) |
 | `EKYAN_DATABASE_URL` | Local MVP database; use SQLite during synthetic development |
 | `EKYAN_AUTH_SECRET` | Required 32+ character signing secret when `EKYAN_ENV=production` |
 | `EKYAN_ENABLE_DEMO_AUTH` | Enables synthetic role sign-in in development; must be false in production |
+| `EKYAN_ENABLE_REGISTRATION` | Enables account sign-up; defaults off in production until privacy approvals are complete |
+| `NEXT_PUBLIC_EKYAN_SYNTHETIC_MODE` | Shows synthetic-only guidance in web sign-up; keep true until approved for live account data |
+| `EKYAN_BOOTSTRAP_ADMIN_EMAIL` | Initial production administrator email; provisioned once at startup when absent |
+| `EKYAN_BOOTSTRAP_ADMIN_PASSWORD` | Initial production administrator password (12+ chars); provide through the deployment secret manager |
+| `EKYAN_BOOTSTRAP_ADMIN_NAME` | Initial administrator display name |
+
+The database already exists: SQLAlchemy uses SQLite by default for local synthetic development. Set `EKYAN_DATABASE_URL=postgresql+psycopg://...` for a persistent PostgreSQL deployment. Startup applies additive account-column migration and creates a unique email index; back up production data before upgrades. Configure bootstrap administrator credentials on the first production start, then remove the bootstrap password from deployment configuration.
 
 ---
 

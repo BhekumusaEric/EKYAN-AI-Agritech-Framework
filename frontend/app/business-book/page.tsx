@@ -371,7 +371,6 @@ export default function BusinessBookPage() {
     try {
       const blob = await apiRequestBlob(
         "/api/v1/profiles/me/application-pack",
-        "agripreneur",
         {
           method: "POST",
           body: JSON.stringify({

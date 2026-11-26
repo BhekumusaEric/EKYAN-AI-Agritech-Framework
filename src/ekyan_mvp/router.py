@@ -2,20 +2,29 @@ from __future__ import annotations
 
 import csv
 import io
+import re
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 from statistics import median
 from typing import Callable
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Query, Request, Response
 from fastapi.responses import Response
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
-from .auth import InvalidToken, issue_token, verify_token
+from .auth import InvalidToken, _DUMMY_PASSWORD_HASH, hash_password, issue_token, verify_password, verify_token
 from .database import ROLES, session_dependency
+from .notifications import (
+    notify_blocker_escalated,
+    notify_blocker_resolved,
+    notify_consent_granted,
+    notify_consent_revoked,
+    notify_order_fulfilled,
+    notify_supplier_commitment,
+)
 from .models import (
     AdoptionIntention,
     AuditLog,
@@ -44,6 +53,9 @@ from .schemas import (
     ConfigItemCreate,
     ConsentCreate,
     DemoSessionRequest,
+    LoginRequest,
+    RegisterRequest,
+    UserApprovalRequest,
     FarmerCreate,
     OrderCreate,
     ProgrammeCostCreate,
@@ -123,6 +135,20 @@ def _escalate_overdue(session: Session) -> int:
                     synthetic=True,
                 )
             )
+            # WhatsApp notification (no-op if phone not configured or synthetic)
+            agripreneur = session.get(User, blocker.agripreneur_id)
+            import asyncio
+            try:
+                asyncio.get_event_loop().run_until_complete(
+                    notify_blocker_escalated(
+                        getattr(agripreneur, "phone", None) if agripreneur else None,
+                        blocker.id,
+                        blocker.category,
+                        blocker.urgency,
+                    )
+                )
+            except Exception:
+                pass
             escalated += 1
     return escalated
 
@@ -180,25 +206,33 @@ def create_router(
     *,
     auth_secret: str,
     demo_auth_enabled: bool,
+    registration_enabled: bool = False,
+    production_mode: bool = False,
 ) -> APIRouter:
     router = APIRouter(prefix="/api/v1")
     get_db = session_dependency(factory)
 
     def get_actor(
         authorization: str | None = Header(default=None),
+        ekyan_session: str | None = Cookie(default=None),
         session: Session = Depends(get_db),
     ) -> User:
-        if not authorization:
+        token = ekyan_session
+        if authorization:
+            scheme, separator, bearer = authorization.partition(" ")
+            if scheme.lower() != "bearer" or not separator or not bearer:
+                raise HTTPException(status_code=401, detail="A valid bearer access token is required.")
+            token = bearer
+        if not token:
             raise HTTPException(status_code=401, detail="A bearer access token is required.")
-        scheme, separator, token = authorization.partition(" ")
-        if scheme.lower() != "bearer" or not separator or not token:
-            raise HTTPException(status_code=401, detail="A valid bearer access token is required.")
         try:
             claims = verify_token(token, secret=auth_secret)
         except InvalidToken as exc:
             raise HTTPException(status_code=401, detail=str(exc)) from exc
         actor = session.get(User, claims["sub"])
-        if actor is None or not actor.active or actor.role != claims["role"]:
+        if (actor is None or not actor.active or actor.role != claims["role"]
+                or actor.approval_status != "approved"
+                or claims.get("ver", 0) != actor.token_version):
             raise HTTPException(status_code=401, detail="The account is inactive or its role changed.")
         return actor
 
@@ -296,9 +330,153 @@ def create_router(
             "synthetic": blocker.synthetic,
         }
 
+    def issue_account_session(
+        session: Session,
+        actor: User,
+        response: Response,
+        *,
+        demo_only: bool,
+        native_client: bool = False,
+    ) -> dict:
+        token = issue_token(
+            subject=actor.id,
+            role=actor.role,
+            secret=auth_secret,
+            version=actor.token_version,
+        )
+        audit(session, actor_id=actor.id, action="session_issued", entity="session", entity_id=actor.id)
+        session.commit()
+        response.set_cookie(
+            key="ekyan_session",
+            value=token,
+            httponly=True,
+            secure=production_mode,
+            samesite="none" if production_mode else "lax",
+            max_age=3600,
+            path="/api/v1",
+        )
+        result = {
+            "tokenType": "Bearer",
+            "expiresIn": 3600,
+            "actor": {"id": actor.id, "displayName": actor.display_name, "role": actor.role},
+            "synthetic": actor.synthetic,
+            "demoOnly": demo_only,
+            "active": True,
+        }
+        if native_client:
+            result["accessToken"] = token
+        return result
+
+    @router.post("/auth/register", status_code=201)
+    def register_account(
+        request: RegisterRequest,
+        response: Response,
+        request_info: Request,
+        session: Session = Depends(get_db),
+    ) -> dict:
+        if not registration_enabled:
+            raise HTTPException(status_code=404, detail="Account registration is not enabled.")
+        native_client = request_info.headers.get("x-ekyan-client") == "native"
+        if native_client and (not request.terms_accepted or request.terms_version != "pilot-2026-11"):
+            raise HTTPException(status_code=422, detail="Please accept the current Terms & Conditions before creating an account.")
+        email = request.email.strip().lower()
+        if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email):
+            raise HTTPException(status_code=422, detail="Enter a valid email address.")
+        if not production_mode and (
+            not email.endswith(".invalid")
+            or not request.display_name.strip().lower().startswith(("synthetic ", "demo "))
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail="Local prototype accounts must use a Synthetic or Demo name and an .invalid email address.",
+            )
+        if session.scalar(select(User.id).where(User.email == email)):
+            raise HTTPException(status_code=409, detail="An account with this email already exists.")
+        is_self_service_role = request.role == "agripreneur"
+        actor = User(
+            id=new_id(),
+            display_name=request.display_name.strip(),
+            email=email,
+            password_hash=hash_password(request.password),
+            role=request.role,
+            active=is_self_service_role,
+            approval_status="approved" if is_self_service_role else "pending",
+            synthetic=not production_mode,
+        )
+        session.add(actor)
+        try:
+            session.flush()
+            audit(session, actor_id=actor.id, action="user_account_created", entity="user", entity_id=actor.id,
+                  metadata={"role": actor.role})
+            if native_client:
+                audit(session, actor_id=actor.id, action="user_terms_accepted", entity="user", entity_id=actor.id,
+                      metadata={"termsVersion": request.terms_version, "client": "native"})
+            if not is_self_service_role:
+                audit(
+                    session,
+                    actor_id=actor.id,
+                    action="role_access_requested",
+                    entity="user",
+                    entity_id=actor.id,
+                    metadata={"requestedRole": actor.role},
+                )
+                session.commit()
+                return {
+                    "status": "pending",
+                    "active": False,
+                    "message": "Your role request is awaiting administrator approval.",
+                }
+            return issue_account_session(
+                session, actor, response, demo_only=actor.synthetic,
+                native_client=request_info.headers.get("x-ekyan-client") == "native",
+            )
+        except IntegrityError as exc:
+            session.rollback()
+            raise HTTPException(status_code=409, detail="An account with this email already exists.") from exc
+
+    @router.post("/auth/login")
+    def login_account(
+        request: LoginRequest,
+        response: Response,
+        request_info: Request,
+        session: Session = Depends(get_db),
+    ) -> dict:
+        email = request.email.strip().lower()
+        actor = session.scalar(select(User).where(User.email == email))
+        if actor is None:
+            verify_password(request.password, _DUMMY_PASSWORD_HASH)
+            raise HTTPException(status_code=401, detail="Email or password is incorrect.")
+        if not verify_password(request.password, actor.password_hash):
+            raise HTTPException(status_code=401, detail="Email or password is incorrect.")
+        if actor.approval_status == "pending":
+            raise HTTPException(status_code=403, detail="Your account is awaiting administrator approval.")
+        if actor.approval_status != "approved" or not actor.active:
+            raise HTTPException(status_code=403, detail="This account is not active.")
+        return issue_account_session(
+            session, actor, response, demo_only=actor.synthetic,
+            native_client=request_info.headers.get("x-ekyan-client") == "native",
+        )
+
+    @router.post("/auth/logout")
+    def logout_account(
+        response: Response,
+        actor: User = Depends(get_actor),
+        session: Session = Depends(get_db),
+    ) -> dict:
+        actor.token_version += 1
+        audit(session, actor_id=actor.id, action="session_revoked", entity="session", entity_id=actor.id)
+        session.commit()
+        response.delete_cookie(
+            key="ekyan_session", path="/api/v1", secure=production_mode,
+            httponly=True, samesite="none" if production_mode else "lax",
+        )
+        return {"status": "signed_out"}
+
     @router.post("/auth/demo-session")
     def create_demo_session(
         request: DemoSessionRequest,
+        response: Response,
+        request_info: Request,
         session: Session = Depends(get_db),
     ) -> dict:
         if not demo_auth_enabled:
@@ -307,23 +485,10 @@ def create_router(
         actor = session.get(User, user_id)
         if actor is None or not actor.active or not actor.synthetic:
             raise HTTPException(status_code=503, detail="Synthetic demo account is unavailable.")
-        token = issue_token(subject=actor.id, role=actor.role, secret=auth_secret)
-        audit(
-            session,
-            actor_id=actor.id,
-            action="demo_session_issued",
-            entity="session",
-            entity_id=actor.id,
+        return issue_account_session(
+            session, actor, response, demo_only=True,
+            native_client=request_info.headers.get("x-ekyan-client") == "native",
         )
-        session.commit()
-        return {
-            "accessToken": token,
-            "tokenType": "Bearer",
-            "expiresIn": 3600,
-            "actor": {"id": actor.id, "displayName": actor.display_name, "role": actor.role},
-            "synthetic": True,
-            "demoOnly": True,
-        }
 
     @router.get("/me")
     def get_me(actor: User = Depends(get_actor)) -> dict:
@@ -332,7 +497,39 @@ def create_router(
             "displayName": actor.display_name,
             "role": actor.role,
             "synthetic": actor.synthetic,
+            "email": actor.email,
+            "approvalStatus": actor.approval_status,
         }
+
+    @router.get("/admin/user-requests")
+    def list_user_requests(
+        session: Session = Depends(get_db),
+        actor: User = Depends(require_roles("administrator")),
+    ) -> dict:
+        users = session.scalars(
+            select(User).where(User.approval_status == "pending").order_by(User.created_at)
+        ).all()
+        audit(session, actor_id=actor.id, action="pending_account_requests_viewed", entity="user_access_queue")
+        session.commit()
+        return {"users": [{"id": user.id, "displayName": user.display_name, "email": user.email,
+                           "role": user.role, "createdAt": user.created_at.isoformat()} for user in users]}
+
+    @router.post("/admin/user-requests/{user_id}")
+    def review_user_request(
+        user_id: str,
+        request: UserApprovalRequest,
+        session: Session = Depends(get_db),
+        actor: User = Depends(require_roles("administrator")),
+    ) -> dict:
+        user = session.get(User, user_id)
+        if user is None or user.approval_status != "pending":
+            raise HTTPException(status_code=404, detail="Pending account request was not found.")
+        user.approval_status = request.status
+        user.active = request.status == "approved"
+        audit(session, actor_id=actor.id, action=f"user_access_{request.status}", entity="user", entity_id=user.id,
+              metadata={"role": user.role})
+        session.commit()
+        return {"id": user.id, "status": user.approval_status, "active": user.active}
 
     @router.get("/config")
     def get_configuration(
@@ -694,6 +891,21 @@ def create_router(
             metadata={"status": new_status},
         )
         session.commit()
+        # WhatsApp notification on resolution
+        if new_status == "resolved":
+            agripreneur = session.get(User, blocker.agripreneur_id)
+            import asyncio
+            try:
+                asyncio.get_event_loop().run_until_complete(
+                    notify_blocker_resolved(
+                        getattr(agripreneur, "phone", None) if agripreneur else None,
+                        blocker.id,
+                        blocker.category,
+                        blocker.resolution_note or "",
+                    )
+                )
+            except Exception:
+                pass
         return {"blocker": serialize_blocker(blocker)}
 
     @router.post("/sync")
@@ -796,6 +1008,50 @@ def create_router(
                         on_behalf_of=farmer.id if farmer else None,
                     )
                     entity_name = "blocker"
+                elif entry.kind == "blocker_update":
+                    blocker_id = payload.get("blockerId")
+                    expected_status = payload.get("expectedStatus")
+                    if not isinstance(blocker_id, str) or not blocker_id:
+                        raise ValueError("Blocker reference is required.")
+                    blocker = session.get(Blocker, blocker_id)
+                    if blocker is None or blocker.agripreneur_id != actor.id:
+                        raise ValueError("Blocker was not found for this agripreneur.")
+                    if blocker.status != expected_status:
+                        raise ValueError("This blocker changed since it was saved on the phone. Refresh and review it.")
+                    parsed = BlockerUpdate.model_validate({
+                        key: payload[key]
+                        for key in ("status", "resolutionNote", "farmerConfirmed")
+                        if key in payload
+                    })
+                    if parsed.status is None:
+                        raise ValueError("Choose a status before saving.")
+                    values = parsed.model_dump(exclude_unset=True)
+                    new_status = values["status"]
+                    note = values.get("resolution_note", blocker.resolution_note)
+                    farmer_confirmed = values.get("farmer_confirmed", blocker.farmer_confirmed)
+                    if new_status in {"resolved", "cannot_resolve", "closed"} and not (note or "").strip():
+                        raise ValueError("Add a follow-up note before closing this blocker.")
+                    if new_status == "resolved" and not farmer_confirmed:
+                        raise ValueError("Confirm with the farmer before marking this blocker resolved.")
+                    for key, value in values.items():
+                        setattr(blocker, key, value)
+                    blocker.resolved_at = utcnow() if new_status == "resolved" else None
+                    entity = blocker
+                    entity_name = "blocker_update"
+                elif entry.kind == "order_fulfilment":
+                    order_id = payload.get("orderId")
+                    expected_status = payload.get("expectedStatus")
+                    if not isinstance(order_id, str) or not order_id:
+                        raise ValueError("Input request reference is required.")
+                    order = session.get(FieldOrder, order_id)
+                    if order is None or order.agripreneur_id != actor.id:
+                        raise ValueError("Input request was not found for this agripreneur.")
+                    if expected_status != "committed" or order.status not in {"committed", "fulfilled"}:
+                        raise ValueError("This input request is no longer awaiting receipt confirmation. Refresh the list.")
+                    if order.status == "committed":
+                        order.status = "fulfilled"
+                    entity = order
+                    entity_name = "order_fulfilment"
                 else:
                     if "transactionDate" not in payload and "date" in payload:
                         payload["transactionDate"] = payload.pop("date")
@@ -824,7 +1080,7 @@ def create_router(
                     audit(
                         session,
                         actor_id=actor.id,
-                        action="sync_create",
+                        action="sync_update" if entry.kind in {"blocker_update", "order_fulfilment"} else "sync_create",
                         entity=entity_name,
                         entity_id=entity.id,
                         on_behalf_of=getattr(entity, "on_behalf_of", None),
@@ -957,6 +1213,27 @@ def create_router(
             metadata={"demandGroupId": group.id, "quantity": request.quantity},
         )
         session.commit()
+        # WhatsApp notifications to agripreneurs in this demand group
+        notified_agripreneurs: set[str] = set()
+        for order in session.scalars(
+            select(FieldOrder).where(FieldOrder.demand_group_id == group.id)
+        ).all():
+            if order.agripreneur_id not in notified_agripreneurs:
+                notified_agripreneurs.add(order.agripreneur_id)
+                agripreneur = session.get(User, order.agripreneur_id)
+                import asyncio
+                try:
+                    asyncio.get_event_loop().run_until_complete(
+                        notify_supplier_commitment(
+                            getattr(agripreneur, "phone", None) if agripreneur else None,
+                            group.item,
+                            request.quantity,
+                            request.unit_price_kes,
+                            request.delivery_date.isoformat(),
+                        )
+                    )
+                except Exception:
+                    pass
         return {
             "commitment": {
                 "id": commitment.id,
@@ -983,6 +1260,19 @@ def create_router(
             raise HTTPException(status_code=409, detail="Only committed orders can be confirmed as fulfilled.")
         order.status = "fulfilled"
         audit(session, actor_id=actor.id, action="confirm_fulfilment", entity="order", entity_id=order.id, on_behalf_of=order.farmer_id)
+        # WhatsApp notification on fulfilment
+        agripreneur = session.get(User, order.agripreneur_id)
+        import asyncio
+        try:
+            asyncio.get_event_loop().run_until_complete(
+                notify_order_fulfilled(
+                    getattr(agripreneur, "phone", None) if agripreneur else None,
+                    order.item,
+                    order.quantity,
+                )
+            )
+        except Exception:
+            pass
         group = session.get(DemandGroup, order.demand_group_id) if order.demand_group_id else None
         if group:
             remaining_orders = session.scalar(
@@ -1133,6 +1423,18 @@ def create_router(
             metadata={"lenderId": lender.id, "purpose": consent.purpose, "expiresAt": expires_at.isoformat()},
         )
         session.commit()
+        import asyncio
+        try:
+            asyncio.get_event_loop().run_until_complete(
+                notify_consent_granted(
+                    getattr(actor, "phone", None),
+                    lender.id,
+                    consent.purpose,
+                    expires_at.isoformat(),
+                )
+            )
+        except Exception:
+            pass
         return {
             "consent": {
                 "id": consent.id,
@@ -1183,6 +1485,16 @@ def create_router(
             consent.revoked_at = utcnow()
             audit(session, actor_id=actor.id, action="revoke", entity="consent", entity_id=consent.id)
             session.commit()
+            import asyncio
+            try:
+                asyncio.get_event_loop().run_until_complete(
+                    notify_consent_revoked(
+                        getattr(actor, "phone", None),
+                        consent.lender_id,
+                    )
+                )
+            except Exception:
+                pass
         return {"id": consent.id, "revoked": True, "revokedAt": consent.revoked_at.isoformat()}
 
     @router.get("/profiles/consented")

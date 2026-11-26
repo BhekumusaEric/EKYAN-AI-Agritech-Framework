@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Generator
 
-from sqlalchemy import Engine, create_engine, inspect, make_url, select, text
+from sqlalchemy import Engine, Index, create_engine, inspect, make_url, select, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -65,6 +65,19 @@ def make_session_factory(engine: Engine) -> sessionmaker[Session]:
 
 
 def upgrade_transaction_schema(engine: Engine) -> None:
+    if inspect(engine).has_table(User.__tablename__):
+        user_columns = {column["name"] for column in inspect(engine).get_columns(User.__tablename__)}
+        user_additions = {
+            "email": "VARCHAR(254)",
+            "password_hash": "VARCHAR(256)",
+            "approval_status": "VARCHAR(16) NOT NULL DEFAULT 'approved'",
+            "token_version": "INTEGER NOT NULL DEFAULT 0",
+        }
+        with engine.begin() as connection:
+            for name, declaration in user_additions.items():
+                if name not in user_columns:
+                    connection.execute(text(f"ALTER TABLE {User.__tablename__} ADD COLUMN {name} {declaration}"))
+        Index("uq_mvp_users_email", User.email, unique=True).create(engine, checkfirst=True)
     if not inspect(engine).has_table(BusinessTransaction.__tablename__):
         return
     existing_columns = {

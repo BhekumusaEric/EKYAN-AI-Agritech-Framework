@@ -1,18 +1,16 @@
-"""
-EKYAN Connect — Unified Backend API
-Mounts all modules: Agronomist Bot, Credit Scoring, Climate Advisory.
-Run: uvicorn main:app --reload --port 8000
-"""
+"""EKYAN Connect pilot API for synthetic, human-led coordination workflows."""
 
 import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
@@ -29,15 +27,65 @@ allowed_origins = (
 )
 
 # Module imports
-from swahili_voice_bot.app import app as agronomist_app
-from credit_scoring.model import FarmerCreditProfile, score_farmer
-from credit_scoring.presentation import credit_review_response
 from climate_engine.advisory import get_advisory
 from marketplace.engine import (
-    HarvestRegistration, BuyerOrder, forecast_price,
-    match_buyer_to_farmers, MARKET_BASELINES
+    forecast_price, MARKET_BASELINES
 )
 from datetime import date
+
+from ekyan_mvp.auth import InvalidToken, development_secret, hash_password, verify_token
+from ekyan_mvp.database import initialize_database, make_engine, make_session_factory
+from ekyan_mvp.models import User, new_id
+from ekyan_mvp.router import create_router
+
+_environment = os.getenv("EKYAN_ENV", "development").strip().lower()
+_configured_database_url = os.getenv("EKYAN_DATABASE_URL") or os.getenv("DATABASE_URL") or ""
+if _environment == "production" and not _configured_database_url.startswith(("postgres://", "postgresql://", "postgresql+psycopg://")):
+    raise RuntimeError("Configure EKYAN_DATABASE_URL or DATABASE_URL with PostgreSQL before starting EKYAN in production.")
+if _environment == "production" and not configured_origins:
+    raise RuntimeError("Configure ALLOWED_ORIGINS for the production web client.")
+_configured_auth_secret = os.getenv("EKYAN_AUTH_SECRET", "")
+if _environment == "production" and len(_configured_auth_secret) < 32:
+    raise RuntimeError("EKYAN_AUTH_SECRET must be configured with at least 32 characters in production.")
+if _environment == "production" and os.getenv("EKYAN_ENABLE_DEMO_AUTH", "false").lower() == "true":
+    raise RuntimeError("Demo role sign-in must remain disabled in production.")
+_auth_secret = _configured_auth_secret or development_secret()
+_demo_auth_enabled = _environment != "production" and os.getenv("EKYAN_ENABLE_DEMO_AUTH", "true").strip().lower() == "true"
+_registration_enabled = os.getenv(
+    "EKYAN_ENABLE_REGISTRATION", "false" if _environment == "production" else "true"
+).strip().lower() == "true"
+_mvp_engine = make_engine()
+_mvp_session_factory = make_session_factory(_mvp_engine)
+
+
+def authenticated_account(request: Request, authorization: str | None = Header(default=None)) -> User:
+    token = request.cookies.get("ekyan_session")
+    if authorization:
+        scheme, separator, bearer = authorization.partition(" ")
+        if scheme.lower() != "bearer" or not separator or not bearer:
+            raise HTTPException(status_code=401, detail="A valid bearer access token is required.")
+        token = bearer
+    if not token:
+        raise HTTPException(status_code=401, detail="A bearer access token is required.")
+    try:
+        claims = verify_token(token, secret=request.app.state.auth_secret)
+    except InvalidToken as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    with request.app.state.mvp_session_factory() as session:
+        actor = session.get(User, claims["sub"])
+        if (actor is None or not actor.active or actor.approval_status != "approved"
+                or actor.role != claims["role"] or claims.get("ver", 0) != actor.token_version):
+            raise HTTPException(status_code=401, detail="The account is inactive or its role changed.")
+        session.expunge(actor)
+        return actor
+
+
+def require_account_roles(*allowed: str):
+    def dependency(actor: User = Depends(authenticated_account)) -> User:
+        if actor.role not in allowed:
+            raise HTTPException(status_code=403, detail="This role cannot perform that action.")
+        return actor
+    return dependency
 
 app = FastAPI(
     title="EKYAN Connect API",
@@ -45,56 +93,28 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
 )
+app.state.auth_secret = _auth_secret
+app.state.mvp_session_factory = _mvp_session_factory
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
+    allow_origin_regex=(
+        None if _environment == "production"
+        else r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
+    ),
 )
-
-# ── Mount agronomist bot ──────────────────────────────────────────────────────
-app.mount("/agronomist", agronomist_app)
-
-
-# ── Credit scoring endpoint ───────────────────────────────────────────────────
-
-class CreditRequest(BaseModel):
-    farmer_id: str
-    ekyan_modules_completed: int = 0
-    quiz_avg_score: float = 0.0
-    demo_days_attended: int = 0
-    mpesa_monthly_inflow_kes: float = 0.0
-    mpesa_consistency_score: float = 0.0
-    chama_savings_months: int = 0
-    ndvi_season1: float = 0.3
-    ndvi_season2: float = 0.3
-    farm_size_acres: float = 1.0
-    peer_endorsements: int = 0
-    cooperative_standing: float = 0.5
-    mentor_verified: bool = False
-    deliveries_completed: int = 0
-    delivery_adherence_rate: float = 0.0
-    previous_loan_repaid: Optional[bool] = None
-
-
-@app.post("/api/v1/credit/score")
-def credit_score(req: CreditRequest) -> dict:
-    profile = FarmerCreditProfile(**req.model_dump())
-    decision = score_farmer(profile)
-    return credit_review_response(
-        farmer_id=decision.farmer_id,
-        aci_score=decision.aci_score,
-        readiness_band=decision.readiness_band,
-        score_breakdown=decision.score_breakdown,
-        improvement_actions=decision.improvement_actions,
-    )
-
 
 # ── Climate advisory endpoint ─────────────────────────────────────────────────
 
 @app.get("/api/v1/climate/advisory")
-async def climate_advisory(county: str, ndvi: Optional[float] = None):
+async def climate_advisory(
+    county: str, ndvi: Optional[float] = None,
+    actor: User = Depends(require_account_roles("agripreneur", "extension_officer", "programme_manager", "administrator")),
+):
     nudges = await get_advisory(county, ndvi)
     return {
         "county": county,
@@ -113,31 +133,11 @@ async def climate_advisory(county: str, ndvi: Optional[float] = None):
 
 # ── Marketplace endpoints ─────────────────────────────────────────────────────
 
-class HarvestRequest(BaseModel):
-    farmer_id: str
-    county: str
-    commodity: str
-    volume_kg: float
-    harvest_date: str   # ISO date YYYY-MM-DD
-    lat: float = -0.023
-    lon: float = 37.906
-    quality_grade: str = "A"
-
-
-class BuyerOrderRequest(BaseModel):
-    buyer_id: str
-    buyer_name: str
-    buyer_type: str
-    commodity: str
-    volume_kg_needed: float
-    delivery_date: str  # ISO date YYYY-MM-DD
-    county: str
-    max_price_kes_per_kg: float
-    farms: list[HarvestRequest]
-
-
 @app.get("/api/v1/market/price")
-def market_price(commodity: str, days_ahead: int = 14):
+def market_price(
+    commodity: str, days_ahead: int = 14,
+    actor: User = Depends(require_account_roles("agripreneur", "supplier", "buyer", "programme_manager", "administrator")),
+):
     target = date.today().__class__.fromordinal(
         date.today().toordinal() + days_ahead
     )
@@ -153,43 +153,74 @@ def market_price(commodity: str, days_ahead: int = 14):
     }
 
 
-@app.post("/api/v1/market/match")
-def market_match(req: BuyerOrderRequest):
-    buyer = BuyerOrder(
-        buyer_id=req.buyer_id,
-        buyer_name=req.buyer_name,
-        buyer_type=req.buyer_type,
-        commodity=req.commodity,
-        volume_kg_needed=req.volume_kg_needed,
-        delivery_date=date.fromisoformat(req.delivery_date),
-        county=req.county,
-        max_price_kes_per_kg=req.max_price_kes_per_kg,
-    )
-    farms = [
-        HarvestRegistration(
-            farmer_id=f.farmer_id, county=f.county, commodity=f.commodity,
-            volume_kg=f.volume_kg, harvest_date=date.fromisoformat(f.harvest_date),
-            lat=f.lat, lon=f.lon, quality_grade=f.quality_grade,
-        )
-        for f in req.farms
-    ]
-    match = match_buyer_to_farmers(buyer, farms)
+@app.get("/api/v1/market/commodities")
+def list_commodities(actor: User = Depends(require_account_roles("agripreneur", "supplier", "buyer", "programme_manager", "administrator"))):
+    return {"commodities": list(MARKET_BASELINES.keys())}
+
+
+# ── Investor profile endpoint ─────────────────────────────────────────────────
+
+@app.get("/api/v1/investor/profiles")
+def investor_profiles(actor: User = Depends(require_account_roles("investor", "administrator"))):
+    """Investor-specific sharing remains closed until purpose-bound consent is supported."""
+    return {"profiles": [], "synthetic": True, "count": 0,
+            "message": "No investor profiles are available until EKYAN has an investor-specific consent flow."}
+
+
+# ── Buyer marketplace endpoints ────────────────────────────────────────────────
+
+@app.get("/api/v1/marketplace/listings")
+def list_harvest_listings(
+    commodity: Optional[str] = None, county: Optional[str] = None,
+    actor: User = Depends(require_account_roles("buyer", "agripreneur", "administrator")),
+):
+    return {"listings": [], "count": 0, "synthetic": True,
+            "message": "Marketplace listings are not enabled in this pilot phase."}
+
+
+@app.get("/api/v1/marketplace/price-forecast")
+def marketplace_price_forecast(
+    commodity: str, days_ahead: int = 14,
+    actor: User = Depends(require_account_roles("buyer", "agripreneur", "administrator")),
+):
+    target = date.today().__class__.fromordinal(date.today().toordinal() + days_ahead)
+    f = forecast_price(commodity, target)
     return {
-        "buyer": match.buyer.buyer_name,
-        "matched_farmers": len(match.farmers),
-        "total_supply_kg": match.total_supply_kg,
-        "shortfall_kg": match.shortfall_kg,
-        "fair_price_kes": match.fair_price_kes,
-        "contract_value_kes": match.total_contract_value_kes,
-        "farmer_gain_vs_broker_kes": match.farmer_gain_vs_broker_kes,
-        "escrow_ready": match.escrow_trigger,
-        "logistics": match.logistics_note,
+        "commodity": f.commodity,
+        "forecast_date": f.forecast_date.isoformat(),
+        "fair_farmgate_kes": f.fair_price_kes,
+        "market_wholesale_kes": f.market_price_kes,
+        "broker_wouldve_paid_kes": f.broker_price_kes,
+        "farmer_gain_per_kg_kes": f.farmer_gain_kes,
+        "confidence": f.confidence,
+        "synthetic": True,
     }
 
 
-@app.get("/api/v1/market/commodities")
-def list_commodities():
-    return {"commodities": list(MARKET_BASELINES.keys())}
+# ── Agronomist local chat (Ollama fallback) ────────────────────────────────────
+
+class LocalChatRequest(BaseModel):
+    message: str
+    participant_id: str = "synthetic-demo-001"
+    language: str = "en"
+
+
+@app.post("/api/v1/advisory/chat")
+async def advisory_chat(
+    req: LocalChatRequest,
+    actor: User = Depends(require_account_roles("agripreneur", "extension_officer")),
+):
+    """Fail closed until approved-source retrieval and human escalation exist."""
+    return {
+        "reply": (
+            "No approved advisory source is connected, so I cannot provide farm guidance. Please route this question to a qualified extension officer. "
+            "Hakuna chanzo cha ushauri kilichoidhinishwa. Tafadhali peleka swali hili kwa afisa ugani mwenye sifa."
+        ),
+        "source": "none",
+        "confidence": "unavailable",
+        "participant_id": req.participant_id,
+        "synthetic": True,
+    }
 
 
 # ── Health ────────────────────────────────────────────────────────────────────
@@ -201,29 +232,32 @@ def health():
 
 # ── BRS MVP services: local persistence, scoped roles and audit ───────────────
 
-from ekyan_mvp.auth import development_secret
-from ekyan_mvp.database import initialize_database, make_engine, make_session_factory
-from ekyan_mvp.router import create_router
-
-_environment = os.getenv("EKYAN_ENV", "development").strip().lower()
-_configured_auth_secret = os.getenv("EKYAN_AUTH_SECRET", "")
-if _environment == "production" and len(_configured_auth_secret) < 32:
-    raise RuntimeError("EKYAN_AUTH_SECRET must be configured with at least 32 characters in production.")
-if _environment == "production" and os.getenv("EKYAN_ENABLE_DEMO_AUTH", "false").lower() == "true":
-    raise RuntimeError("Demo role sign-in must remain disabled in production.")
-
-_auth_secret = _configured_auth_secret or development_secret()
-_demo_auth_enabled = (
-    _environment != "production"
-    and os.getenv("EKYAN_ENABLE_DEMO_AUTH", "true").strip().lower() == "true"
-)
-_mvp_engine = make_engine()
-_mvp_session_factory = make_session_factory(_mvp_engine)
-
-
 @app.on_event("startup")
 def initialize_mvp_services() -> None:
     initialize_database(_mvp_engine, _mvp_session_factory)
+    admin_email = os.getenv("EKYAN_BOOTSTRAP_ADMIN_EMAIL", "").strip().lower()
+    admin_password = os.getenv("EKYAN_BOOTSTRAP_ADMIN_PASSWORD", "")
+    default_admin_name = "EKYAN Administrator" if _environment == "production" else "Demo Administrator"
+    admin_name = os.getenv("EKYAN_BOOTSTRAP_ADMIN_NAME", default_admin_name).strip()
+    if bool(admin_email) != bool(admin_password):
+        raise RuntimeError("Set both EKYAN_BOOTSTRAP_ADMIN_EMAIL and EKYAN_BOOTSTRAP_ADMIN_PASSWORD.")
+    with _mvp_session_factory.begin() as session:
+        existing_admin = session.scalar(
+            select(User).where(User.role == "administrator", User.email.is_not(None), User.active.is_(True))
+        )
+        if admin_email and session.scalar(select(User.id).where(User.email == admin_email)) is None:
+            if len(admin_password) < 12:
+                raise RuntimeError("The bootstrap administrator password must be at least 12 characters.")
+            if _environment != "production" and (
+                not admin_email.endswith(".invalid") or not admin_name.lower().startswith(("demo ", "synthetic "))
+            ):
+                raise RuntimeError("Local bootstrap admin accounts must use a Demo or Synthetic name and .invalid email.")
+            session.add(User(
+                id=new_id(), display_name=admin_name, email=admin_email, password_hash=hash_password(admin_password),
+                role="administrator", active=True, approval_status="approved", synthetic=_environment != "production",
+            ))
+        elif _environment == "production" and existing_admin is None:
+            raise RuntimeError("Configure bootstrap administrator credentials before starting EKYAN in production.")
 
 
 app.include_router(
@@ -231,5 +265,7 @@ app.include_router(
         _mvp_session_factory,
         auth_secret=_auth_secret,
         demo_auth_enabled=_demo_auth_enabled,
+        registration_enabled=_registration_enabled,
+        production_mode=_environment == "production",
     )
 )

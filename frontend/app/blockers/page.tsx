@@ -139,10 +139,10 @@ export default function BlockersPage() {
   return (
     <div className="mx-auto max-w-[1440px] space-y-6 p-4 sm:p-7 lg:p-9">
       <section>
-        <Badge variant="warning"><ClipboardList aria-hidden="true" size={14} /> Blocker resolution</Badge>
-        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Every blocker needs an owner</h1>
+        <Badge variant="warning"><ClipboardList aria-hidden="true" size={14} /> Requests &amp; follow-up</Badge>
+        <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Every request needs a next step</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-          Review the suggested category and route, confirm or correct it, then track the outcome with the farmer through their agripreneur.
+          Check who is handling each reported problem, record the response, and confirm with the farmer whether it helped.
         </p>
       </section>
 
@@ -155,8 +155,8 @@ export default function BlockersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Blockers awaiting action</CardTitle>
-          <CardDescription>Human confirmation is required before a suggested route is treated as an assignment.</CardDescription>
+          <CardTitle>Requests to follow up</CardTitle>
+          <CardDescription>Confirm the category and owner before treating a suggested route as an assignment.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {loading && <div role="status" className="flex items-center gap-2 text-sm text-slate-600"><LoaderCircle className="animate-spin" size={16} />Loading synthetic blockers…</div>}

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { LoaderCircle, Plus, Settings2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,23 +17,41 @@ export default function ConfigurationPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [userRequests, setUserRequests] = useState<{ id: string; displayName: string; email: string; role: string; createdAt: string }[]>([]);
 
-  async function loadConfiguration() {
+  const loadConfiguration = useCallback(async () => {
     try {
-      const response = await apiRequest<{ items: Record<string, { name: string }[]> }>("/api/v1/config", undefined, "administrator");
+      const [response, requests] = await Promise.all([
+        apiRequest<{ items: Record<string, { name: string }[]> }>("/api/v1/config"),
+        apiRequest<{ users: typeof userRequests }>("/api/v1/admin/user-requests"),
+      ]);
       setInputs((response.items.input ?? []).map((item) => item.name));
       setCategories((response.items.blocker_category ?? []).map((item) => item.name));
+      setUserRequests(requests.users);
       setError("");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Pilot configuration could not be loaded.");
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  async function reviewAccount(userId: string, status: "approved" | "rejected") {
+    setSaving(true); setError("");
+    try {
+      await apiRequest(`/api/v1/admin/user-requests/${encodeURIComponent(userId)}`, {
+        method: "POST", body: JSON.stringify({ status }),
+      });
+      setMessage(status === "approved" ? "Account approved. The user can now sign in." : "Account request declined.");
+      await loadConfiguration();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The account request could not be reviewed.");
+    } finally { setSaving(false); }
   }
 
   useEffect(() => {
     void loadConfiguration();
-  }, []);
+  }, [loadConfiguration]);
 
   async function addValue(event: FormEvent<HTMLFormElement>, type: "input" | "category") {
     event.preventDefault();
@@ -54,7 +72,7 @@ export default function ConfigurationPage() {
           name: value,
           ...(type === "category" ? { routeTo: "extension_officer", slaDays: 7 } : {}),
         }),
-      }, "administrator");
+      });
       await loadConfiguration();
       if (type === "input") setNewInput("");
       else setNewCategory("");
@@ -105,6 +123,18 @@ export default function ConfigurationPage() {
           disabled={saving}
         />
       </div>
+
+      <Card>
+        <CardHeader><CardTitle>Account access requests</CardTitle><CardDescription>Verify a partner or programme role before enabling protected workspaces.</CardDescription></CardHeader>
+        <CardContent>
+          {userRequests.length === 0 ? <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">No account requests are waiting for review.</p> : <ul className="divide-y divide-slate-100">{userRequests.map((request) => (
+            <li key={request.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0"><p className="font-semibold text-slate-900">{request.displayName}</p><p className="mt-1 break-all text-xs text-slate-600">{request.email} · {request.role.replaceAll("_", " ")}</p></div>
+              <div className="flex gap-2"><button disabled={saving} onClick={() => void reviewAccount(request.id, "rejected")} className="min-h-10 rounded-xl border border-slate-200 px-3 text-xs font-semibold text-slate-700 disabled:opacity-50">Decline</button><button disabled={saving} onClick={() => void reviewAccount(request.id, "approved")} className="min-h-10 rounded-xl bg-brand-700 px-3 text-xs font-semibold text-white disabled:opacity-50">Approve access</button></div>
+            </li>
+          ))}</ul>}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-5 sm:grid-cols-3">
         {[

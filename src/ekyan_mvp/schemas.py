@@ -56,6 +56,24 @@ class DemoSessionRequest(StrictModel):
     role: Role
 
 
+class RegisterRequest(StrictModel):
+    display_name: str = Field(alias="displayName", min_length=3, max_length=120)
+    email: str = Field(min_length=5, max_length=254)
+    password: str = Field(min_length=12, max_length=256)
+    role: Role
+    terms_accepted: bool = Field(default=False, alias="termsAccepted")
+    terms_version: str | None = Field(default=None, alias="termsVersion", max_length=40)
+
+
+class LoginRequest(StrictModel):
+    email: str = Field(min_length=5, max_length=254)
+    password: str = Field(min_length=1, max_length=256)
+
+
+class UserApprovalRequest(StrictModel):
+    status: Literal["approved", "rejected"]
+
+
 class FarmerCreate(StrictModel):
     client_id: str | None = Field(default=None, alias="clientId", min_length=1, max_length=80)
     name: str = Field(min_length=3, max_length=120)
@@ -232,7 +250,7 @@ class AdoptionIntentionCreate(StrictModel):
 
 class SyncEntry(StrictModel):
     client_id: str = Field(alias="clientId", min_length=1, max_length=80)
-    kind: Literal["farmer", "order", "blocker", "transaction", "intention"]
+    kind: Literal["farmer", "order", "blocker", "transaction", "intention", "blocker_update", "order_fulfilment"]
     payload: dict[str, Any]
     on_behalf_of: str | None = Field(default=None, alias="onBehalfOf", max_length=80)
     created_at: datetime | None = Field(default=None, alias="createdAt")

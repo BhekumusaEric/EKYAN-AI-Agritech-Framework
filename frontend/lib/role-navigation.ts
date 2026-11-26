@@ -16,14 +16,12 @@ export const ROLE_WORKSPACES: Record<
   { home: string; links: { href: string; label: string; icon: string }[] }
 > = {
   agripreneur: {
-    home: "/field-log",
+    home: "/home",
     links: [
-      { href: "/farmer", label: "Farmer view · preview", icon: "field" },
-      { href: "/field-log", label: "Field log", icon: "field" },
-      { href: "/blockers", label: "My blockers", icon: "blockers" },
-      { href: "/agronomist", label: "Ask Nia · mock", icon: "advisory" },
+      { href: "/home", label: "Today", icon: "dashboard" },
+      { href: "/field-log", label: "Record a need", icon: "field" },
+      { href: "/blockers", label: "Follow up", icon: "blockers" },
       { href: "/business-book", label: "Business records", icon: "business" },
-      { href: "/credit", label: "Finance profile", icon: "lender" },
     ],
   },
   supplier: {
@@ -58,6 +56,7 @@ export const ROLE_WORKSPACES: Record<
 
 export function roleForPath(path: string): PreviewRole {
   if (
+    path.startsWith("/home") ||
     path.startsWith("/farmer") ||
     path.startsWith("/field-log") ||
     path.startsWith("/blockers") ||

@@ -266,8 +266,8 @@ export default function CreditPage() {
               <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
                 {[
                   ["Lender", "Demo Lender"],
-                  ["Purpose", "Finance readiness review"],
-                  ["Fields shared", "Business readiness profile"],
+                  ["Purpose", "Finance record review"],
+                  ["Fields shared", "Business records summary"],
                   ["Expiry", "Choose up to 90 days"],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-lg bg-white p-2">
@@ -280,7 +280,7 @@ export default function CreditPage() {
                 <label className="block text-xs font-semibold text-slate-700">
                   Purpose
                   <select name="purpose" className="mt-1.5 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-normal">
-                    <option value="finance_readiness_review">Finance readiness review</option>
+                    <option value="finance_readiness_review">Finance record review</option>
                     <option value="input_finance_assessment">Input finance assessment</option>
                   </select>
                 </label>

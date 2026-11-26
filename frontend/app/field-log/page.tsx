@@ -212,13 +212,13 @@ export default function FieldLogPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1440px] space-y-6 p-4 sm:p-7 lg:p-9">
-      <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+    <div className="mx-auto max-w-[1440px] space-y-4 p-3 sm:space-y-6 sm:p-7 lg:p-9">
+      <section className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end sm:gap-5">
         <div>
           <Badge variant="success"><Sprout aria-hidden="true" size={14} /> {tr("Field operations")}</Badge>
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">{tr("Log once, support many")}</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-            {tr("Capture a farmer's intention, need, order, blocker or outcome through their agripreneur—even when the connection drops.")}
+          <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:mt-4 sm:text-3xl">{tr("Log once, support many")}</h1>
+          <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-600 sm:text-sm sm:leading-6">
+            {tr("Record a farmer's input need or blocker, then follow it through to a response—even when the connection drops.")}
           </p>
         </div>
         <Badge variant={!storageReady || storageError || !online ? "warning" : "success"}>
@@ -235,11 +235,11 @@ export default function FieldLogPage() {
         <Card>
           <CardHeader>
             <CardTitle>{tr("New field entry")}</CardTitle>
-            <CardDescription>{PILOT.county} {tr("County")} · {tr(PILOT.valueChain)} {tr("pilot")} · {tr("consent before proxy recording")}</CardDescription>
+            <CardDescription>{tr("Start with an input request or a blocker. Record other business activity from the additional options.")} · {PILOT.county} {tr("County")} · {tr(PILOT.valueChain)} {tr("pilot")} · {tr("consent before proxy recording")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4" role="group" aria-label={tr("Choose entry type")}>
-              {ENTRY_TYPES.map((entryType) => (
+            <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-2" role="group" aria-label={tr("Choose entry type")}>
+              {ENTRY_TYPES.filter((entryType) => entryType.value === "order" || entryType.value === "blocker").map((entryType) => (
                 <button
                   key={entryType.value}
                   type="button"
@@ -259,6 +259,32 @@ export default function FieldLogPage() {
                 </button>
               ))}
             </div>
+            <details className="mb-5 rounded-xl border border-slate-200 px-4 py-3">
+              <summary className="cursor-pointer text-sm font-semibold text-slate-700">
+                {tr("More record types")}{kind !== "order" && kind !== "blocker" ? ` · ${tr(ENTRY_LABELS[kind])}` : ""}
+              </summary>
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3" role="group" aria-label={tr("Additional record types")}>
+                {ENTRY_TYPES.filter((entryType) => entryType.value !== "order" && entryType.value !== "blocker").map((entryType) => (
+                  <button
+                    key={entryType.value}
+                    type="button"
+                    aria-pressed={kind === entryType.value}
+                    onClick={() => {
+                      setKind(entryType.value);
+                      setFeedback(null);
+                    }}
+                    className={`min-h-16 rounded-xl border p-3 text-left transition ${
+                      kind === entryType.value
+                        ? "border-brand-300 bg-brand-50 text-brand-900 ring-2 ring-brand-500/15"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-brand-200 hover:bg-brand-50/50"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold">{tr(entryType.label)}</span>
+                    <span className="mt-1 block text-[11px] leading-4 text-slate-500">{tr(entryType.caption)}</span>
+                  </button>
+                ))}
+              </div>
+            </details>
 
             {storageError && <StatusNotice tone="error" title={tr("Local storage unavailable")}>{storageError}</StatusNotice>}
             {feedback && (

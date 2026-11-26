@@ -90,13 +90,13 @@ export default function DashboardPage() {
       if (start) params.set("start", start);
       if (end) params.set("end", end);
       if (gender) params.set("gender", gender);
-      const file = await apiRequestBlob(`/api/v1/kpi/export.csv?${params}`, "programme_manager");
+      const file = await apiRequestBlob(`/api/v1/kpi/export.csv?${params}`);
       const url = URL.createObjectURL(file);
       const link = document.createElement("a");
       link.href = url;
       link.download = "ekyan-kpis.csv";
       link.click();
-      URL.revokeObjectURL(url);
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "The KPI export could not be downloaded.");
     } finally {

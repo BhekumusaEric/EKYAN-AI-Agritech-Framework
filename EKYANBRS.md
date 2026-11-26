@@ -39,18 +39,18 @@ unreliable access to buyers and off-takers;
 fragmented communication between programme participants and service providers;
 advisory information that may be incomplete, narrow or insufficiently contextual;
 limited real-time programme visibility into unresolved blockers and outcome conversion.
-The proposed solution, EKYAN Connect, is a shared operating structure that connects farmers, agripreneurs, suppliers, lenders, investors, buyers, extension officers and programme managers.
-It enables the programme to follow a continuous operational loop:
-Learn → intend to adopt → report a blocker or need → coordinate a response → fulfil the requirement → verify adoption → record the business outcome → learn at programme level.
+The proposed solution, EKYAN Connect, is a shared operating structure that helps agripreneurs and programme teams coordinate farmer needs with service providers and follow responses through to confirmation.
+The pilot operating loop is:
+Capture a need or blocker with consent → assign a human owner → coordinate a response or input → confirm whether it helped → record evidence for programme learning.
 EKYAN Connect is not intended to replace Ask Nia, OneNetwork, Agribytes, Chomoka or existing partner systems. It is designed to integrate with them through controlled interfaces and close the operational gaps between them.
-The initial solution comprises six connected capabilities:
+The longer-term solution may grow to include six connected capabilities:
 Farmer and agripreneur field operations;
 Blocker reporting and resolution;
 Input demand aggregation and fulfilment;
-Bookkeeping, credit readiness and investment readiness;
+Bookkeeping and finance preparation, with investment information subject to later scope;
 Market and off-taker coordination;
 Programme intelligence and cost-effectiveness monitoring.
-AI acts as an enabling layer for classification, summarisation, forecasting, data extraction, personalised guidance and decision support. It must not replace professional agricultural advice, regulated lending decisions or accountable human programme decisions.
+AI may assist approved, source-grounded tasks in later phases. MVP workflows are human-led; AI must not replace professional agricultural advice, regulated lending decisions or accountable human programme decisions.
 3. Programme Context
 3.1 EKYAN operating model
 EKYAN connects:
@@ -121,7 +121,7 @@ Create a live feedback and resolution mechanism for farmer and agripreneur block
 Increase the conversion of learning and adoption intention into verified implementation.
 Aggregate input demand so that suppliers can respond efficiently and competitively.
 Create reliable digital business histories for agripreneurs.
-Make agripreneurs more assessable by banks, lenders and impact investors.
+Help agripreneurs organize business records and understand record gaps before any separately consented lender process.
 Improve visibility of expected production and connect producers to buyers.
 Extend access to verified and context-sensitive agricultural guidance.
 Reduce the administrative burden on agripreneurs and programme teams.
@@ -131,7 +131,7 @@ Preserve human accountability while using AI to increase speed and insight.
 Support multi-county and future multi-country configuration without rebuilding the platform.
 6. Proposed Solution
 6.1 Solution statement
-EKYAN Connect is a digital operating, coordination and intelligence platform that helps EKYAN participants report needs, coordinate services, build business records, access finance and markets, and provide the programme with continuous evidence of outcomes and cost-effectiveness.
+EKYAN Connect is a digital coordination platform that helps agripreneurs capture farmer needs, follow accountable responses, coordinate pooled input requests and record evidence for programme learning. Bookkeeping and finance preparation are supporting capabilities; access to finance or markets depends on future partner processes and is not guaranteed by the platform.
 6.2 Solution principles
 Farmer-first, agripreneur-assisted: a farmer must be able to benefit without owning a smartphone.
 Integrate rather than replace: connect to existing EKYAN and partner tools.
@@ -152,8 +152,8 @@ Blocker Resolution
 Route problems to accountable actors and track them to closure
 Input Network
 Aggregate demand, invite supplier response and confirm fulfilment
-Enterprise Finance
-Build bookkeeping records, credit-readiness and investor profiles
+Business Records
+Capture bookkeeping activity and show finance-record coverage without scoring or predicting lending decisions
 Market Network
 Forecast supply, aggregate produce and connect to buyers/off-takers
 Advisory and Risk Intelligence
@@ -233,15 +233,13 @@ The MVP shall include:
 role-based access;
 farmer records managed by agripreneurs;
 offline field logging;
-blocker capture, routing, status and escalation;
-input-order capture and pooled demand;
-supplier commitment and fulfilment confirmation;
-simple agripreneur bookkeeping;
-explainable finance-readiness profile;
-consent-controlled lender view;
-investor opportunity profile generated from verified data;
+blocker capture, human-assigned ownership, status and escalation;
+input-request capture, pooled demand, supplier commitment and receipt confirmation;
+farmer/agripreneur confirmation of whether a response helped;
+simple agripreneur bookkeeping and a finance-preparation checklist;
+consent-controlled, read-only finance-profile preview using synthetic records;
 mock integration interfaces for Ask Nia, OneNetwork, Chomoka and finance partners;
-programme dashboard and KPI dictionary;
+programme dashboard and KPI dictionary focused on request, response and fulfilment;
 synthetic pilot data;
 English and Kiswahili configuration;
 audit logging and data-quality checks.
@@ -266,6 +264,7 @@ automated impact-investment reporting;
 integration with formal credit bureaus where legally and contractually appropriate.
 9.4 Out of scope for MVP
 automatic loan approval or rejection;
+creditworthiness scores, readiness bands or approval-likelihood predictions;
 distribution of real funds;
 production use of personal or financial data;
 storage of children's personal data;
@@ -273,6 +272,11 @@ public supplier enrolment without programme verification;
 replacement of Ask Nia, OneNetwork, Agribytes or Chomoka;
 unverified agronomic or veterinary prescriptions;
 unrestricted AI-generated financial or agricultural advice.
+
+9.5 Pilot user experience and measurement
+The pilot shall organize the agripreneur workspace around one operating loop: capture a farmer need or blocker with consent, assign a human owner, record the response or input fulfilment, and ask whether the response helped. The primary landing page shall show the next follow-up actions and provide a direct path to record a need. Bookkeeping and finance preparation support this workflow but do not compete with it for primary navigation.
+The MVP shall distinguish an intention, a service action, an agripreneur-recorded proxy confirmation, any independently farmer-confirmed response, and a verified outcome. Proxy confirmation must be labeled as such and shall not be presented as direct farmer feedback. A fulfilled order or closed blocker is not, by itself, evidence of adoption, income change or impact. Programme reports shall label proxy measures and show missing verification data rather than infer outcomes.
+The initial pilot shall prioritize blocker response and pooled input requests for the Busia poultry cohort. Climate services, buyer matching, investment profiling and live AI advice remain secondary previews or later-phase capabilities until their data, partner, safety and operational requirements are met.
 10. Functional Business Requirements
 10.1 User, role and configuration requirements
 ID
@@ -543,11 +547,11 @@ BR-108
 KPI tables shall be exportable for approved reporting use.
 Should
 11. Credit and Investment Readiness Design
-11.1 Credit-readiness information domains
-The bank-ready profile shall contain:
+11.1 Finance-preparation information domains
+The finance-preparation view may summarize, with provenance and verification status:
 Applicant and business verification;
 EKYAN participation and training evidence;
-Twelve-month revenue, cost and cash-flow history;
+available revenue, cost and cash-flow records (clearly labelled by period and completeness);
 Customer and order activity;
 Supplier and buyer relationships;
 Savings and repayment evidence where permitted;
@@ -556,38 +560,10 @@ Agricultural cycle and repayment timing;
 Operational, market and climate risks;
 Data quality and verification status;
 Consent, expiry and access history.
-11.2 Initial finance-readiness factors
-The first pilot should use an explainable rules-based assessment rather than a predictive default model.
-Factor
-Illustrative maximum weight
-Record completeness and consistency
-20%
-Cash-flow capacity
-20%
-Revenue stability and growth
-15%
-Customer diversification
-10%
-Order-fulfilment reliability
-10%
-Savings and repayment behaviour
-10%
-Verified supplier and buyer relationships
-10%
-Operational risk management
-5%
-The weights are illustrative and require validation by a regulated lender.
+11.2 Finance-preparation checklist
+The MVP may show whether records exist, their period, source and verification status, and the next step to complete or correct them. It shall not aggregate these fields into weights, a score, a band, a ranking, a recommendation to borrow or an estimate of lender approval. This checklist supports record preparation only; a regulated lender performs its own assessment.
 11.3 Readiness bands
-Band
-Interpretation
-0–39
-Foundation stage; insufficient evidence or critical gaps
-40–59
-Building history; may suit small controlled finance with additional evidence
-60–79
-Finance-ready for formal lender assessment
-80–100
-Strong documented readiness, still subject to underwriting
+Readiness bands are not part of the MVP. Any future proposal to introduce them requires a revised business requirement, lawful and representative evidence, validation with regulated partners, bias and impact review, human accountability, and explicit approval before implementation.
 11.4 AI use in finance readiness
 AI may:
 convert voice notes and receipts into draft records;
@@ -631,7 +607,7 @@ receipt and invoice extraction;
 demand and supply forecasting;
 data-quality analysis;
 cash-flow scenario generation;
-finance-readiness explanation;
+finance-record checklist explanation;
 investor memo drafting;
 programme performance narration.
 12.2 Human-in-the-loop controls

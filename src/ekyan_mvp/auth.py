@@ -13,6 +13,30 @@ class InvalidToken(ValueError):
     pass
 
 
+def hash_password(password: str) -> str:
+    salt = secrets.token_bytes(16)
+    digest = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1, dklen=64)
+    return f"scrypt${base64.urlsafe_b64encode(salt).decode()}${base64.urlsafe_b64encode(digest).decode()}"
+
+
+def verify_password(password: str, stored: str | None) -> bool:
+    if not stored:
+        return False
+    try:
+        algorithm, salt_text, digest_text = stored.split("$", maxsplit=2)
+        if algorithm != "scrypt":
+            return False
+        salt = base64.urlsafe_b64decode(salt_text.encode())
+        expected = base64.urlsafe_b64decode(digest_text.encode())
+        actual = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1, dklen=len(expected))
+        return hmac.compare_digest(actual, expected)
+    except (ValueError, TypeError):
+        return False
+
+
+_DUMMY_PASSWORD_HASH = hash_password("EKYAN invalid account password sentinel")
+
+
 def development_secret() -> str:
     return secrets.token_urlsafe(32)
 
@@ -24,6 +48,7 @@ def issue_token(
     secret: str,
     expires_in_seconds: int = 3600,
     now: int | None = None,
+    version: int = 0,
 ) -> str:
     issued = int(time.time()) if now is None else now
     payload = {
@@ -31,6 +56,7 @@ def issue_token(
         "role": role,
         "iat": issued,
         "exp": issued + expires_in_seconds,
+        "ver": version,
     }
     encoded = base64.urlsafe_b64encode(
         json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")

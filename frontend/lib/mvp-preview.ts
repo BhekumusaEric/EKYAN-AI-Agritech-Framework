@@ -81,22 +81,11 @@ export const KPI_DICTIONARY = [
   { id: "K4", name: "Order fulfilment rate", formula: "Fulfilled order lines ÷ order lines", source: "Pooled Demand" },
   { id: "K5", name: "Supplier commitment rate", formula: "Committed demand items ÷ demand items", source: "Pooled Demand" },
   { id: "K6", name: "Intention → action conversion", formula: "Farmers with a fulfilled order ÷ farmers with a logged intention (service-action proxy, not verified practice adoption)", source: "Field Log + Pooled Demand" },
-  { id: "K7", name: "Agripreneurs with ready profiles", formula: "Ready profiles ÷ active agripreneurs", source: "Finance Readiness" },
+  { id: "K7", name: "Agripreneurs with current business records", formula: "Agripreneurs with an income and operating-cost entry in the selected period ÷ active agripreneurs", source: "Business Book · record coverage" },
   { id: "K8", name: "Farmers served per agripreneur", formula: "Active farmers ÷ active agripreneurs", source: "Field Log" },
   { id: "K9", name: "Women share", formula: "Women participants ÷ participants, by role", source: "People records" },
   { id: "K10", name: "Cost per outcome", formula: "Approved programme cost ÷ resolved blocker or fulfilled farmer", source: "Programme costs + outcomes" },
   { id: "K11", name: "Data-quality score", formula: "Records passing checks ÷ records checked", source: "Data-quality checks" },
-] as const;
-
-export const READINESS_FACTORS = [
-  { name: "Record completeness and consistency", weight: "20%" },
-  { name: "Cash-flow capacity", weight: "20%" },
-  { name: "Revenue stability and growth", weight: "15%" },
-  { name: "Customer diversification", weight: "10%" },
-  { name: "Order-fulfilment reliability", weight: "10%" },
-  { name: "Savings and repayment evidence", weight: "10%" },
-  { name: "Verified supplier and buyer relationships", weight: "10%" },
-  { name: "Operational risk management", weight: "5%" },
 ] as const;
 
 export function routeForBlocker(category: string) {
