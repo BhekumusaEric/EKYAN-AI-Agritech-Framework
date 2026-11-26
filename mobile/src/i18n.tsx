@@ -12,6 +12,8 @@ const SWAHILI: Record<string, string> = {
   "Business book": "Daftari la biashara",
   "Record": "Rekodi",
   "Record a need": "Rekodi hitaji",
+  "Plant a field note": "Andika dokezo shambani",
+  "Follow the trail": "Fuatilia ombi",
   "Add farmer": "Ongeza mkulima",
   "Synthetic farmer name": "Jina la mkulima wa mfano",
   "Synthetic village": "Kijiji cha mfano",

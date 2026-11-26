@@ -120,7 +120,7 @@ export default function AgripreneurHomePage() {
 
   return (
     <div className="mx-auto max-w-[1180px] space-y-4 p-3 sm:space-y-6 sm:p-7 lg:p-9">
-      <section className="relative overflow-hidden rounded-[24px] bg-[#143D32] p-5 text-white shadow-[0_18px_50px_rgba(16,44,38,0.14)] sm:rounded-[28px] sm:p-8">
+      <section className="field-note-pattern relative overflow-hidden rounded-[24px] bg-[#143D32] p-5 text-white shadow-[0_18px_50px_rgba(16,44,38,0.14)] sm:rounded-[28px] sm:p-8">
         <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-24 h-72 w-72 rounded-full border border-white/10" />
         <div className="relative flex flex-col justify-between gap-4 sm:gap-6 sm:flex-row sm:items-end">
           <div>
@@ -130,8 +130,8 @@ export default function AgripreneurHomePage() {
               {tr("Capture what is stopping a farmer, follow the response, and check whether it helped.")}
             </p>
           </div>
-          <Link href="/field-log" className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-[#143D32] shadow-sm transition hover:bg-emerald-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:min-h-12 sm:w-auto">
-            <Plus aria-hidden="true" size={17} /> {tr("Record a need")}
+          <Link href="/field-log" className="group inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#e5f0df] px-5 text-sm font-semibold text-[#143D32] shadow-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto">
+            <Sprout aria-hidden="true" size={17} /> {tr("Plant a field note")} <ArrowRight aria-hidden="true" className="transition-transform group-hover:translate-x-1" size={15} />
           </Link>
         </div>
       </section>
@@ -141,10 +141,9 @@ export default function AgripreneurHomePage() {
       </StatusNotice>
       {error && <StatusNotice tone="error" title={tr("Could not load field activity")}>{error}</StatusNotice>}
 
-      <section aria-label={tr("Pilot activity")} className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3">
+      <section aria-label={tr("Pilot activity")} className="grid grid-cols-2 divide-x divide-[#d7ddd2] border-y border-[#d7ddd2] py-4 sm:py-5">
         <MetricCard icon={CircleAlert} label={tr("Needs awaiting response")} value={loading ? "…" : String(activeBlockers.length)} detail={overdueCount ? `${overdueCount} ${tr("overdue")}` : tr("Assigned for follow-up")} tone={overdueCount ? "amber" : "sky"} />
         <MetricCard icon={PackageCheck} label={tr("Input requests in progress")} value={loading ? "…" : String(activeOrders.length)} detail={tr("Waiting for supply or delivery confirmation")} tone="green" />
-        <div className="hidden md:block"><MetricCard icon={CheckCircle2} label={tr("Farmer confirmation")} value={tr("Close the loop")} detail={tr("Record whether the response actually helped")} tone="slate" /></div>
       </section>
 
       <section className="grid gap-3 sm:gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
@@ -160,20 +159,20 @@ export default function AgripreneurHomePage() {
               <div role="status" className="flex min-h-28 items-center gap-2 text-sm text-slate-500"><Clock3 aria-hidden="true" size={16} />{tr("Loading your requests…")}</div>
             ) : workItems.length ? (
               <ul className="divide-y divide-slate-100">
-                {workItems.slice(0, 5).map((item) => (
-                  <li key={`${item.kind}-${item.id}`} className="flex flex-col gap-2 py-3 first:pt-1 last:pb-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-4">
+                {workItems.slice(0, 5).map((item, index) => (
+                  <li key={`${item.kind}-${item.id}`} className="group flex flex-col gap-2 py-3 first:pt-1 last:pb-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:py-4">
                     <div className="flex min-w-0 items-start gap-3">
-                      <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.kind === "blocker" ? "bg-amber-50 text-amber-800" : "bg-sky-50 text-sky-800"}`}>
+                      <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${item.kind === "blocker" ? "bg-[#f5ead9] text-[#855522]" : "bg-[#e5efe2] text-[#276947]"}`}>
                         {item.kind === "blocker" ? <ClipboardList aria-hidden="true" size={17} /> : <PackageCheck aria-hidden="true" size={17} />}
                       </span>
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold text-slate-900">{item.title}</span>
+                        <span className="block truncate text-sm font-semibold text-[#24372e]"><span className="mr-2 text-[10px] font-bold tabular-nums text-[#9b7a57]">{String(index + 1).padStart(2, "0")}</span>{item.title}</span>
                         <span className="mt-1 block text-xs text-slate-500">{tr(item.context.split(" · ")[0])} · {tr(item.context.split(" · ")[1])}</span>
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-3 pl-12 sm:shrink-0 sm:pl-0">
                       <Badge variant={item.urgent ? "warning" : "neutral"}>{tr(item.status)}</Badge>
-                      <span className="text-xs tabular-nums text-slate-500">{item.due}</span>
+                      <span className="flex items-center gap-2 text-xs tabular-nums text-slate-500"><span>{item.due}</span><ArrowRight aria-hidden="true" size={15} className="text-[#64836e] transition-transform group-hover:translate-x-1" /></span>
                     </div>
                   </li>
                 ))}
@@ -228,16 +227,16 @@ function MetricCard({
     slate: "bg-slate-100 text-slate-800",
   }[tone];
   return (
-    <Card className="shadow-none">
-      <CardContent className="p-3 sm:flex sm:items-start sm:gap-3 sm:p-5">
-        <span className={`hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:flex ${toneClass}`}><Icon aria-hidden="true" size={19} /></span>
+    <div>
+      <CardContent className="flex items-start gap-2 p-3 sm:gap-3 sm:p-5">
+        <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10 ${toneClass}`}><Icon aria-hidden="true" size={17} /></span>
         <div className="min-w-0">
           <p className="text-[10px] font-medium leading-4 text-slate-500 sm:text-xs">{label}</p>
-          <p className="mt-1 text-base font-semibold leading-5 text-slate-900 sm:text-lg sm:leading-6">{value}</p>
+          <p className="mt-1 text-xl font-semibold leading-5 tracking-tight text-[#24372e] sm:text-2xl sm:leading-7">{value}</p>
           <p className="mt-1 hidden text-[11px] leading-4 text-slate-500 sm:block">{detail}</p>
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 }
 
@@ -253,8 +252,8 @@ function ActionLink({
   detail: string;
 }) {
   return (
-    <Link href={href} className="group flex min-h-[68px] items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 transition hover:border-brand-200 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-800"><Icon aria-hidden="true" size={17} /></span>
+    <Link href={href} className="group flex min-h-[68px] items-center gap-3 border-b border-[#d8ded4] px-1 py-3 transition hover:bg-[#eeefe6]/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e5efe2] text-brand-800"><Icon aria-hidden="true" size={17} /></span>
       <span className="min-w-0 flex-1">
         <span className="block text-xs font-semibold leading-5 text-slate-800">{title}</span>
         <span className="mt-0.5 block text-[11px] leading-4 text-slate-500">{detail}</span>

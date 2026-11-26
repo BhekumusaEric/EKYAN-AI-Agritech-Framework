@@ -109,10 +109,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [actor, authPage, pathname, role, router]);
 
   if (authPage) return <>{children}</>;
-  if (sessionLoading || !actor) return <div className="grid min-h-dvh place-items-center bg-[#F6F8F6] text-sm text-slate-600">Checking your EKYAN account…</div>;
+  if (sessionLoading || !actor) return <div className="grid min-h-dvh place-items-center bg-[#f5f3eb] text-sm text-slate-600">Checking your EKYAN account…</div>;
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-[#F6F8F6]">
+    <div className="flex h-dvh overflow-hidden bg-[#f5f3eb]">
       {sidebarOpen && (
         <button
           aria-label="Close navigation"
@@ -122,7 +122,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       )}
       <Sidebar role={role} open={sidebarOpen} onNavigate={() => setSidebarOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex min-h-[64px] shrink-0 items-center gap-2 border-b border-slate-200/80 bg-white/95 px-3 py-2 backdrop-blur sm:min-h-[72px] sm:gap-3 sm:px-6 lg:px-7">
+        <header className="sticky top-0 z-10 flex min-h-[64px] shrink-0 items-center gap-2 border-b border-[#dedfd4] bg-[#fbfaf5]/95 px-3 py-2 backdrop-blur sm:min-h-[72px] sm:gap-3 sm:px-6 lg:px-7">
           <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
             <button
               aria-label="Open navigation"
@@ -168,7 +168,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               id="language-preference"
               value={language}
               onChange={(event) => setLanguage(event.target.value as "en" | "sw")}
-              className="h-10 w-[76px] rounded-xl border border-slate-200 bg-white px-1.5 text-[11px] font-semibold text-slate-700 outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 sm:h-11 sm:w-[112px] sm:px-3 lg:w-[128px] lg:text-xs"
+              className="h-10 w-[76px] rounded-full border border-[#d4dccf] bg-[#fffefa] px-2 text-[11px] font-semibold text-[#334a3d] outline-none sm:h-11 sm:w-[112px] sm:px-3 lg:w-[128px] lg:text-xs"
               title={`${t(language, "English and Kiswahili are available. Farmer, field-log and business-book screens have initial Kiswahili copy; other workspaces are being prepared.")}${preferenceWarning ? ` ${preferenceWarning}` : ""}`}
             >
               {AVAILABLE_LANGUAGES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
@@ -208,7 +208,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <nav
         aria-label={t(language, "Mobile navigation")}
-        className="fixed inset-x-0 bottom-0 z-10 flex h-[calc(4.5rem+env(safe-area-inset-bottom))] items-stretch justify-around border-t border-slate-200 bg-white/95 px-2 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_24px_rgba(15,23,42,0.06)] backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-10 flex h-[calc(4.5rem+env(safe-area-inset-bottom))] items-stretch justify-around border-t border-[#dedfd4] bg-[#fbfaf5]/95 px-2 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-8px_24px_rgba(38,52,41,0.06)] backdrop-blur md:hidden"
       >
         {mobileLinks.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);

@@ -232,7 +232,7 @@ export default function BusinessBookScreen() {
   }
 
   return (
-    <ScreenFrame refreshing={refreshing} onRefresh={() => void loadData(true)}>
+    <ScreenFrame refreshing={refreshing} onRefresh={() => void loadData(true)} backgroundImage={require("../../assets/images/auth-login.jpg")}>
       <ScreenHeader title={t("Business book")} subtitle={t("Record sales, costs, loans and savings")} />
 
       <Notice title={t("Synthetic demo only")}>

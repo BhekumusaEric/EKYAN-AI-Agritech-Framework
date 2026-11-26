@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Animated,
   Easing,
+  ImageBackground,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -9,6 +10,7 @@ import {
   Text,
   TextInput,
   type TextInputProps,
+  type ImageSourcePropType,
   View,
   type ViewStyle,
 } from "react-native";
@@ -38,21 +40,30 @@ export function ScreenFrame({
   children,
   refreshing = false,
   onRefresh,
+  backgroundImage,
 }: {
   children: React.ReactNode;
   refreshing?: boolean;
   onRefresh?: () => void;
+  backgroundImage?: ImageSourcePropType;
 }) {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <ScrollView
-        contentContainerStyle={styles.screenContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.greenDark} /> : undefined}
+      <ImageBackground
+        source={backgroundImage ?? require("../assets/images/auth-login.jpg")}
+        style={styles.screenBackdrop}
+        imageStyle={styles.screenBackdropImage}
+        resizeMode="cover"
       >
-        {children}
-      </ScrollView>
+        <ScrollView
+          contentContainerStyle={styles.screenContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.greenDark} /> : undefined}
+        >
+          {children}
+        </ScrollView>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -222,6 +233,7 @@ export function ChoiceChip({
       onPress={onPress}
       style={[styles.chip, selected && styles.chipSelected]}
     >
+      {selected ? <Ionicons name="checkmark" size={13} color={colors.greenDark} /> : null}
       <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{label}</Text>
     </Pressable>
   );
@@ -270,13 +282,15 @@ export function MetricCard({
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
+  screenBackdrop: { flex: 1, backgroundColor: colors.background },
+  screenBackdropImage: { opacity: 0.055 },
   screenContent: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 10, paddingBottom: 28, gap: 20 },
   header: { gap: 20 },
   brandRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 11 },
   logoMark: {
     width: 43,
     height: 43,
-    borderRadius: 15,
+    borderRadius: 22,
     backgroundColor: colors.greenSoft,
     justifyContent: "center",
     alignItems: "center",
@@ -287,31 +301,28 @@ const styles = StyleSheet.create({
   brandName: { color: colors.ink, fontSize: 14, fontWeight: "800", letterSpacing: 0.1 },
   brandMeta: { color: colors.muted, fontSize: 10, marginTop: 2 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 7 },
-  signOutButton: { height: 38, width: 38, borderRadius: 12, borderWidth: 1, borderColor: colors.line, alignItems: "center", justifyContent: "center" },
-  languageToggle: { flexDirection: "row", padding: 3, borderRadius: 13, backgroundColor: "#E9EEE8", gap: 2 },
-  languageOption: { minWidth: 39, height: 32, alignItems: "center", justifyContent: "center", borderRadius: 10 },
+  signOutButton: { height: 40, width: 40, borderRadius: 20, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
+  languageToggle: { flexDirection: "row", padding: 3, borderRadius: 99, backgroundColor: "#E8E8DC", gap: 2 },
+  languageOption: { minWidth: 39, height: 32, alignItems: "center", justifyContent: "center", borderRadius: 99 },
   languageOptionActive: { backgroundColor: colors.surface, shadowColor: "#17352B", shadowOpacity: 0.08, shadowRadius: 5, elevation: 1 },
   languageText: { color: colors.muted, fontSize: 10, fontWeight: "700" },
   languageTextActive: { color: colors.greenDark },
   pageHeading: { gap: 4 },
-  pageTitle: { color: colors.ink, fontSize: 27, fontWeight: "800", letterSpacing: -0.5 },
+  pageTitle: { color: colors.ink, fontSize: 29, fontWeight: "800", letterSpacing: -0.8 },
   pageSubtitle: { color: colors.muted, fontSize: 13, lineHeight: 19 },
   preferenceError: { color: colors.danger, fontSize: 11, lineHeight: 16 },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: "transparent",
     borderColor: colors.line,
-    borderWidth: 1,
-    borderRadius: 22,
-    padding: 17,
-    shadowColor: "#19382D",
-    shadowOpacity: 0.035,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRadius: 0,
+    paddingVertical: 14,
+    paddingHorizontal: 0,
   },
   sectionHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 },
   sectionCopy: { flex: 1, gap: 3 },
-  sectionTitle: { color: colors.ink, fontSize: 16, fontWeight: "800" },
+  sectionTitle: { color: colors.ink, fontSize: 17, fontWeight: "800", letterSpacing: -0.2 },
   sectionSubtitle: { color: colors.muted, fontSize: 11, lineHeight: 16 },
   notice: { flexDirection: "row", alignItems: "flex-start", gap: 10, padding: 14, borderRadius: 17, borderWidth: 1 },
   noticeWarning: { backgroundColor: colors.goldSoft, borderColor: "#F0D8A5" },
@@ -321,23 +332,23 @@ const styles = StyleSheet.create({
   noticeCopy: { flex: 1, gap: 3 },
   noticeTitle: { color: colors.ink, fontSize: 12, fontWeight: "800" },
   noticeBody: { color: colors.muted, fontSize: 11, lineHeight: 16 },
-  button: { minHeight: 48, borderRadius: 15, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-  buttonPrimary: { backgroundColor: colors.greenDark },
-  buttonSecondary: { backgroundColor: colors.greenSoft, borderColor: "#C9E2CC", borderWidth: 1 },
+  button: { minHeight: 52, borderRadius: 99, paddingHorizontal: 19, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
+  buttonPrimary: { backgroundColor: colors.greenDark, shadowColor: colors.forest, shadowOpacity: 0.16, shadowRadius: 9, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  buttonSecondary: { backgroundColor: colors.surface, borderColor: colors.line, borderWidth: 1 },
   buttonDisabled: { opacity: 0.55 },
   buttonPressed: { opacity: 0.85, transform: [{ scale: 0.99 }] },
   buttonText: { color: "#FFFFFF", fontSize: 13, fontWeight: "800" },
   buttonTextSecondary: { color: colors.greenDark },
-  chip: { minHeight: 38, paddingHorizontal: 12, justifyContent: "center", alignItems: "center", borderRadius: 12, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
-  chipSelected: { backgroundColor: colors.greenSoft, borderColor: "#9EC9A8" },
+  chip: { minHeight: 40, paddingHorizontal: 14, flexDirection: "row", gap: 5, justifyContent: "center", alignItems: "center", borderRadius: 99, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface },
+  chipSelected: { backgroundColor: colors.greenSoft, borderColor: "#AFC3A8" },
   chipText: { color: colors.muted, fontSize: 11, fontWeight: "700" },
   chipTextSelected: { color: colors.greenDark },
   field: { gap: 7 },
   fieldLabel: { color: colors.ink, fontSize: 12, fontWeight: "700" },
-  input: { minHeight: 48, borderRadius: 14, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface, paddingHorizontal: 13, paddingVertical: 11, color: colors.ink, fontSize: 14 },
+  input: { minHeight: 50, borderRadius: 14, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface, paddingHorizontal: 15, paddingVertical: 11, color: colors.ink, fontSize: 14 },
   multiline: { minHeight: 90, textAlignVertical: "top" },
-  metricCard: { flex: 1, minWidth: "46%", backgroundColor: colors.surface, borderRadius: 19, borderWidth: 1, borderColor: colors.line, padding: 14, gap: 8 },
-  metricIcon: { width: 32, height: 32, borderRadius: 11, justifyContent: "center", alignItems: "center" },
+  metricCard: { flex: 1, minWidth: "46%", backgroundColor: "transparent", borderLeftWidth: 2, borderLeftColor: colors.green, borderRadius: 0, paddingVertical: 9, paddingLeft: 12, gap: 7 },
+  metricIcon: { width: 31, height: 31, borderRadius: 99, justifyContent: "center", alignItems: "center" },
   metricLabel: { color: colors.muted, fontSize: 10, fontWeight: "700" },
   metricValue: { color: colors.ink, fontSize: 16, fontWeight: "800" },
 });

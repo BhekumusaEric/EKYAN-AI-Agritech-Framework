@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LoaderCircle, Sprout } from "lucide-react";
 import { fetchHealth, getApiBaseUrl, signIn, signUp, type ApiDemoRole } from "@/lib/api";
@@ -67,10 +69,12 @@ export default function AccountPage() {
   return (
     <main className="grid min-h-dvh bg-[#F6F8F6] px-4 py-8 sm:place-items-center sm:px-6">
       <div className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-900/5 md:min-h-[620px] md:grid-cols-[0.92fr_1.08fr]">
-        <section className="flex flex-col justify-between bg-[#173C32] p-6 text-white sm:p-10">
-          <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10"><Sprout size={22} /></span><span><b className="block text-lg">EKYAN Connect</b><small className="text-white/65">Practical support, together</small></span></div>
-          <div className="py-10 md:py-0"><p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-200">Your workspace</p><h1 className="max-w-md text-3xl font-semibold leading-tight sm:text-4xl">The right tools for your role in the programme.</h1><p className="mt-4 max-w-md text-sm leading-6 text-white/75">Sign in to a role-based workspace for field operations, supplier response, extension support, or programme oversight.</p></div>
-          <p className="text-xs leading-5 text-white/60">Access depends on your role. Partner and programme accounts are reviewed before they can use protected workspaces.</p>
+        <section className="relative isolate flex flex-col justify-between overflow-hidden bg-[#173C32] p-6 text-white sm:p-10">
+          <Image src="/field-team.jpg" alt="Four women standing together in a green Kenyan farm" fill priority sizes="(max-width: 768px) 100vw, 42vw" className="-z-20 object-cover object-center" />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-br from-[#102c26]/95 via-[#173c32]/78 to-[#173c32]/55" />
+          <div className="relative flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10"><Sprout size={22} /></span><span><b className="block text-lg">EKYAN Connect</b><small className="text-white/75">Practical support, together</small></span></div>
+          <div className="relative py-10 md:py-0"><p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#d7eacb]">Your workspace</p><h1 className="max-w-md text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-4xl">Good work grows when no one is left waiting.</h1><p className="mt-4 max-w-md text-sm leading-6 text-white/85">Sign in to follow a farmer’s request from the field to a clear next step.</p></div>
+          <div className="relative flex flex-col gap-2 text-xs leading-5 text-white/75"><p>Access depends on your role. Partner and programme accounts are reviewed before they can use protected workspaces.</p><Link className="w-fit text-[10px] text-white/60 underline decoration-white/40 underline-offset-2" href="https://commons.wikimedia.org/wiki/File:Kenyan_Rural_women.jpg" target="_blank" rel="noreferrer">Photo: Queen Asali · CC BY 4.0</Link></div>
         </section>
         <section className="flex flex-col justify-center p-5 sm:p-10">
           <div className="mb-7"><p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-800">{registering ? "Get started" : "Welcome back"}</p><h2 className="mt-2 text-2xl font-semibold text-slate-950">{registering ? "Create your account" : "Sign in"}</h2><p className="mt-2 text-sm leading-6 text-slate-600">{registering ? "Choose your programme role. Partner roles need administrator approval." : "Use the email and password linked to your EKYAN account."}</p>
@@ -87,7 +91,7 @@ export default function AccountPage() {
             {registering && <label className="block text-sm font-semibold text-slate-700">Programme role<select value={role} onChange={(e) => setRole(e.target.value as ApiDemoRole)} className="mt-1.5 h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 font-normal outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10">{ACCOUNT_ROLES.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.detail}</option>)}</select></label>}
             {error && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm leading-5 text-rose-800">{error}</p>}
             {notice && <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm leading-5 text-emerald-900">{notice}</p>}
-            <button disabled={busy} aria-busy={busy} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#176B50] px-4 text-sm font-semibold text-white hover:bg-[#125940] disabled:opacity-60">{busy ? <><LoaderCircle aria-hidden="true" className="animate-spin" size={17} />Connecting to EKYAN…</> : registering ? "Create account" : "Sign in"}{!busy && <ArrowRight size={16} />}</button>
+          <button disabled={busy} aria-busy={busy} className="group flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#176B50] px-4 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(23,107,80,.2)] hover:bg-[#125940] disabled:opacity-60">{busy ? <><LoaderCircle aria-hidden="true" className="animate-spin" size={17} />Connecting to EKYAN…</> : registering ? "Create account" : "Enter your workspace"}{!busy && <ArrowRight className="transition-transform group-hover:translate-x-1" size={16} />}</button>
           </form>
           <p className="mt-5 text-center text-sm text-slate-600">{registering ? "Already registered?" : "New to EKYAN Connect?"} <button className="font-semibold text-emerald-800 underline-offset-4 hover:underline" onClick={() => { setRegistering(!registering); setError(""); setNotice(""); }}>{registering ? "Sign in" : "Create an account"}</button></p>
           <p className="mt-5 text-center text-[11px] leading-5 text-slate-500">{syntheticMode ? "Prototype accounts use synthetic data. Live programme access remains disabled until privacy and partner approvals are in place." : "Account sign-in is enabled. EKYAN programme records remain synthetic until privacy, consent and partner approvals are complete."}</p>

@@ -116,10 +116,12 @@ export default function HomeScreen() {
   ].sort((a, b) => Number(b.urgent) - Number(a.urgent)).slice(0, 3);
 
   return (
-    <ScreenFrame refreshing={refreshing} onRefresh={() => void loadData(true)}>
+    <ScreenFrame refreshing={refreshing} onRefresh={() => void loadData(true)} backgroundImage={require("../../assets/images/auth-login.jpg")}>
       <ScreenHeader title={t("Good morning")} subtitle={t("Your local-first agripreneur workspace")} />
 
       <View style={styles.hero}>
+        <View pointerEvents="none" style={styles.heroOrbitOne} />
+        <View pointerEvents="none" style={styles.heroOrbitTwo} />
         <View style={styles.heroTop}>
           <View style={styles.heroIcon}><Ionicons name="leaf" size={22} color="#E6F4DC" /></View>
           <View style={styles.heroTag}>
@@ -131,12 +133,12 @@ export default function HomeScreen() {
         <Text style={styles.heroBody}>{t("See what needs attention, record a request, and follow it through—even offline.")}</Text>
         <View style={styles.heroActions}>
           <Pressable onPress={() => router.push("/(tabs)/field-log")} style={styles.heroActionPrimary}>
-            <Ionicons name="add-circle-outline" size={18} color={colors.forest} />
-            <Text style={styles.heroActionPrimaryText}>{t("Record a need")}</Text>
+            <Ionicons name="leaf-outline" size={18} color={colors.forest} />
+            <Text style={styles.heroActionPrimaryText}>{t("Plant a field note")}</Text>
           </Pressable>
           <Pressable onPress={() => router.push("/(tabs)/follow-up")} style={styles.heroActionSecondary}>
-            <Ionicons name="list-outline" size={18} color="#FFFFFF" />
-            <Text style={styles.heroActionSecondaryText}>{t("Follow up")}</Text>
+            <Ionicons name="git-branch-outline" size={18} color="#FFFFFF" />
+            <Text style={styles.heroActionSecondaryText}>{t("Follow the trail")}</Text>
           </Pressable>
         </View>
       </View>
@@ -178,7 +180,7 @@ export default function HomeScreen() {
         {nextItems.length ? (
           <Card style={styles.nextList}>
             {nextItems.map((item, index) => (
-              <Pressable key={item.id} onPress={() => router.push("/(tabs)/follow-up")} style={[styles.nextRow, index > 0 && styles.nextDivider]}>
+              <Pressable key={item.id} onPress={() => router.push("/(tabs)/follow-up")} style={({ pressed }) => [styles.nextRow, index > 0 && styles.nextDivider, pressed && styles.rowPressed]}>
                 <View style={[styles.nextDot, item.urgent && styles.nextDotUrgent]} />
                 <View style={styles.nextCopy}><Text numberOfLines={1} style={styles.nextTitle}>{item.title}</Text><Text style={styles.nextMeta}>{item.detail}</Text></View>
                 <Ionicons name="chevron-forward" size={16} color={colors.muted} />
@@ -255,26 +257,29 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: { backgroundColor: colors.forest, borderRadius: 26, padding: 21, gap: 14, overflow: "hidden" },
+  hero: { backgroundColor: colors.forest, borderRadius: 26, padding: 21, gap: 14, overflow: "hidden", borderBottomRightRadius: 54 },
+  heroOrbitOne: { position: "absolute", width: 210, height: 210, borderWidth: 1, borderColor: "#FFFFFF14", borderRadius: 105, right: -102, top: -92 },
+  heroOrbitTwo: { position: "absolute", width: 160, height: 160, borderWidth: 1, borderColor: "#FFFFFF12", borderRadius: 80, right: -74, top: -68 },
   heroTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  heroIcon: { width: 43, height: 43, borderRadius: 15, backgroundColor: "#FFFFFF1C", alignItems: "center", justifyContent: "center" },
+  heroIcon: { width: 43, height: 43, borderRadius: 22, backgroundColor: "#FFFFFF1C", alignItems: "center", justifyContent: "center" },
   heroTag: { flexDirection: "row", alignItems: "center", gap: 7, borderRadius: 99, paddingHorizontal: 10, paddingVertical: 7, backgroundColor: "#FFFFFF17" },
   liveDot: { height: 7, width: 7, borderRadius: 4, backgroundColor: "#D8B15B" },
   heroTagText: { color: "#E8F0E7", fontSize: 9, fontWeight: "800", letterSpacing: 0.8 },
-  heroTitle: { maxWidth: 340, color: "#FFFFFF", fontSize: 25, lineHeight: 31, fontWeight: "800", letterSpacing: -0.5 },
+  heroTitle: { maxWidth: 340, color: "#FFFFFF", fontSize: 27, lineHeight: 33, fontWeight: "800", letterSpacing: -0.8 },
   heroBody: { color: "#D3E5D9", fontSize: 12, lineHeight: 18 },
-  heroActions: { gap: 9, marginTop: 1 },
-  heroActionPrimary: { minHeight: 46, paddingHorizontal: 13, borderRadius: 14, backgroundColor: "#E6F2DB", flexDirection: "row", alignItems: "center", gap: 8 },
+  heroActions: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 1 },
+  heroActionPrimary: { flexGrow: 1, flexBasis: "46%", minHeight: 48, paddingHorizontal: 12, borderRadius: 99, backgroundColor: "#E6F2DB", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7 },
   heroActionPrimaryText: { color: colors.forest, fontSize: 12, fontWeight: "800" },
-  heroActionSecondary: { minHeight: 44, paddingHorizontal: 13, borderRadius: 14, borderColor: "#FFFFFF55", borderWidth: 1, flexDirection: "row", alignItems: "center", gap: 8 },
+  heroActionSecondary: { flexGrow: 1, flexBasis: "46%", minHeight: 48, paddingHorizontal: 12, borderRadius: 99, borderColor: "#FFFFFF55", borderWidth: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7 },
   heroActionSecondaryText: { color: "#FFFFFF", fontSize: 12, fontWeight: "700" },
   queueBanner: { minHeight: 46, paddingHorizontal: 14, borderRadius: 15, backgroundColor: colors.goldSoft, flexDirection: "row", alignItems: "center", gap: 9 },
   queueText: { flex: 1, color: "#80570E", fontSize: 12, fontWeight: "800" },
-  metrics: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
+  metrics: { flexDirection: "row", flexWrap: "wrap", gap: 9, borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.line, paddingVertical: 5 },
   metricAction: { flex: 1, minWidth: "46%" },
   nextList: { paddingVertical: 2 },
   nextRow: { minHeight: 61, flexDirection: "row", alignItems: "center", gap: 10 },
   nextDivider: { borderTopWidth: 1, borderTopColor: colors.line },
+  rowPressed: { backgroundColor: "#ECEDE2" },
   nextDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.blue },
   nextDotUrgent: { backgroundColor: colors.gold },
   nextCopy: { flex: 1, gap: 4 },

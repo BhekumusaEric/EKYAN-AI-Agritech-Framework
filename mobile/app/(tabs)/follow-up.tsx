@@ -211,7 +211,7 @@ export default function FollowUpScreen() {
   }
 
   return (
-    <ScreenFrame refreshing={refreshing} onRefresh={() => void loadData(true)}>
+    <ScreenFrame refreshing={refreshing} onRefresh={() => void loadData(true)} backgroundImage={require("../../assets/images/auth-signup.jpg")}>
       <ScreenHeader title={t("Follow up")} subtitle={t("See who is responding and what happens next.")} />
 
       <Notice title={t("Synthetic demo only")}>

@@ -51,7 +51,7 @@ export default function Sidebar({
         open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="flex items-center gap-3 border-b border-white/10 px-6 py-6">
+      <div className="flex items-center gap-3 border-b border-white/10 px-5 py-6">
         <Image
           src="/ekyan-mark.svg"
           alt=""
@@ -80,19 +80,19 @@ export default function Sidebar({
               href={href}
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
-              className={`group flex min-h-11 items-center gap-3 rounded-xl px-3.5 py-3 text-[13px] font-medium transition-colors ${
+              className={`group relative flex min-h-11 items-center gap-3 rounded-xl px-3.5 py-3 text-[13px] font-medium transition-colors ${
                 active
-                  ? "bg-white/10 text-white shadow-sm"
+                  ? "bg-[#d6e7d4] text-[#153c2d] shadow-[inset_3px_0_0_#d58a48]"
                   : "text-white/70 hover:bg-white/[0.06] hover:text-white"
               }`}
             >
               <Icon
                 aria-hidden="true"
                 size={18}
-                className={active ? "text-[#B8E1C8]" : "text-white/55 group-hover:text-white"}
+                className={active ? "text-[#276947]" : "text-white/55 group-hover:text-white"}
               />
               <span className="truncate">{t(language, label)}</span>
-              {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#8FD0A8]" />}
+              {active && <span aria-hidden="true" className="ml-auto h-2 w-2 rounded-full bg-[#d58a48]" />}
             </Link>
           );
         })}

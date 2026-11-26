@@ -8,13 +8,43 @@ html,
 body {
   height: 100%;
   min-height: 100%;
-  background: #f6f8f6;
-  color: #17231f;
+  background: #f5f3eb;
+  color: #1d3029;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body { margin: 0; }
+body {
+  margin: 0;
+  background-image: radial-gradient(ellipse at 82% 0%, rgba(190, 212, 175, .18), transparent 34rem);
+}
+
+::selection { background: #c4dfc6; color: #173b2f; }
+
+button, a, select, input, textarea { transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid rgba(42, 125, 82, .35);
+  outline-offset: 2px;
+}
+
+button:not(:disabled):active, a:active { transform: translateY(1px); }
+
+input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+  border-radius: 12px;
+  border-color: #cbd5c9;
+  background-color: #fffefa;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus, textarea:focus {
+  border-color: #39815b;
+  box-shadow: 0 0 0 4px rgba(57, 129, 91, .12);
+}
+
+.field-note-pattern {
+  background-image: radial-gradient(rgba(255,255,255,.12) .7px, transparent .7px);
+  background-size: 12px 12px;
+}
 
 button,
 a,

@@ -273,7 +273,7 @@ export default function FieldLogScreen() {
   }
 
   return (
-    <ScreenFrame>
+    <ScreenFrame backgroundImage={require("../../assets/images/auth-signup.jpg")}>
       <ScreenHeader title={t("Record a need")} subtitle={t("Capture a farmer need, input request or practice intention")} />
 
       <Notice title={t("Synthetic demo only")}>
